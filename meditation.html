@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Audio Meditation</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body style="padding: 40px 20px;">
+
+  <div style="max-width: 520px; margin: 40px auto; text-align: center;" class="glass-card p-8">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 class="text-gradient" style="font-size: 1.6rem; font-weight: 800;">Ambient Audio Player</h2>
+      <a href="dashboard.html" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.9rem;">← Dashboard</a>
+    </div>
+
+    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">WebAudio Tones & Deep Relaxation Waves</p>
+
+    <div style="background: rgba(0,242,254,0.08); border: 1px solid var(--cyan-accent); padding: 24px; border-radius: 16px; margin-bottom: 24px;">
+      <h3 id="current-track-name" style="font-size: 1.2rem; color: var(--cyan-accent);">40Hz Alpha Binaural Tone</h3>
+    </div>
+
+    <button id="toggle-audio-btn" class="btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">Play Audio Wave</button>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    let isPlaying = false;
+    let audioCtx, osc;
+
+    document.getElementById('toggle-audio-btn').addEventListener('click', () => {
+      if (!isPlaying) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+
+        isPlaying = true;
+        document.getElementById('toggle-audio-btn').innerText = "Pause Audio Wave";
+      } else {
+        osc.stop();
+        isPlaying = false;
+        document.getElementById('toggle-audio-btn').innerText = "Play Audio Wave";
+      }
+    });
+  </script>
+</body>
+</html>
