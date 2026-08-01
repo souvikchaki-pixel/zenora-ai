@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Customized Routine</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body style="padding: 40px 20px;">
+
+  <div style="max-width: 800px; margin: 0 auto;" class="glass-card p-8">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h2 class="text-gradient" style="font-size: 1.8rem; font-weight: 800;">Your AI Customized Routine</h2>
+      <a href="dashboard.html" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.9rem;">← Back to Dashboard</a>
+    </div>
+
+    <div id="routine-blocks-container" style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <div style="background: rgba(0,242,254,0.05); border: 1px solid rgba(0,242,254,0.2); padding: 20px; border-radius: 16px;">
+        <h3 style="color: var(--cyan-accent); margin-bottom: 8px;">🌅 Morning Routine (~30 Mins Total)</h3>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;">
+          <li><input type="checkbox"> Wake Time & Hydration (5 Mins)</li>
+          <li><input type="checkbox"> Guided Breathing Meditation (10 Mins)</li>
+          <li><input type="checkbox"> Light Movement Exercise (10 Mins)</li>
+          <li><input type="checkbox"> Set Daily Intention (5 Mins)</li>
+        </ul>
+      </div>
+
+      <div style="background: rgba(157,78,221,0.05); border: 1px solid rgba(157,78,221,0.2); padding: 20px; border-radius: 16px;">
+        <h3 style="color: var(--purple-accent); margin-bottom: 8px;">☀️ Afternoon Routine (~20 Mins Total)</h3>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;">
+          <li><input type="checkbox"> Stress Relief Micro-Break (5 Mins)</li>
+          <li><input type="checkbox"> Walking or Posture Reset (10 Mins)</li>
+          <li><input type="checkbox"> 4-7-8 Deep Breathing Exercise (5 Mins)</li>
+        </ul>
+      </div>
+
+      <div style="background: rgba(76,201,240,0.05); border: 1px solid rgba(76,201,240,0.2); padding: 20px; border-radius: 16px;">
+        <h3 style="color: var(--blue-accent); margin-bottom: 8px;">🌙 Evening Routine (~25 Mins Total)</h3>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 0.9rem;">
+          <li><input type="checkbox"> Reflection Journaling (10 Mins)</li>
+          <li><input type="checkbox"> Body Scan Meditation (10 Mins)</li>
+          <li><input type="checkbox"> Sleep Preparation Ritual (5 Mins)</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
