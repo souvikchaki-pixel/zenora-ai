@@ -76,6 +76,8 @@
     const submitBtn = document.getElementById('auth-submit-btn');
     const alertBox = document.getElementById('auth-alert');
 
+    const REDIRECT_URL = 'https://zenora-ai-three.vercel.app/age-selection.html';
+
     function showAlert(msg) {
       alertBox.innerText = msg;
       alertBox.style.display = 'block';
@@ -115,7 +117,7 @@
             email,
             password,
             options: {
-              emailRedirectTo: window.location.origin + '/age-selection.html'
+              emailRedirectTo: REDIRECT_URL
             }
           });
         } else {
@@ -164,11 +166,11 @@
         if (!window.supabaseClient) throw new Error("Supabase client not initialized.");
         const { error } = await window.supabaseClient.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: window.location.origin + '/age-selection.html' }
+          options: { redirectTo: REDIRECT_URL }
         });
         if (error) throw error;
       } catch (err) {
-        showAlert(err.message || "Google Authentication failed.");
+        showAlert(err.message || "Google Authentication failed. Verify Google OAuth settings in Supabase.");
       }
     });
 
@@ -179,11 +181,11 @@
         if (!window.supabaseClient) throw new Error("Supabase client not initialized.");
         const { error } = await window.supabaseClient.auth.signInWithOAuth({
           provider: 'github',
-          options: { redirectTo: window.location.origin + '/age-selection.html' }
+          options: { redirectTo: REDIRECT_URL }
         });
         if (error) throw error;
       } catch (err) {
-        showAlert(err.message || "GitHub Authentication failed.");
+        showAlert(err.message || "GitHub Authentication failed. Verify GitHub OAuth settings in Supabase.");
       }
     });
 
@@ -194,11 +196,11 @@
         if (!window.supabaseClient) throw new Error("Supabase client not initialized.");
         const { error } = await window.supabaseClient.auth.signInWithOAuth({
           provider: 'twitter',
-          options: { redirectTo: window.location.origin + '/age-selection.html' }
+          options: { redirectTo: REDIRECT_URL }
         });
         if (error) throw error;
       } catch (err) {
-        showAlert(err.message || "X (Twitter) Authentication failed. Ensure Twitter OAuth 2.0 is enabled in Supabase.");
+        showAlert(err.message || "X (Twitter) Authentication failed. Verify Twitter OAuth settings in Supabase.");
       }
     });
   </script>
