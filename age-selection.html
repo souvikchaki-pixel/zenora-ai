@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Select Age Persona</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body class="flex items-center justify-center p-4">
+
+  <div style="max-width: 480px; width: 100%; margin: 100px auto; text-align: center;" class="glass-card p-8">
+    <h2 class="text-gradient" style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Select Your Age</h2>
+    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 32px; line-height: 1.5;">Zenora adapts cognitive algorithms, recovery trackings, and routines according to your physical age stage.</p>
+
+    <div style="font-size: 4.5rem; font-weight: 800; color: var(--cyan-accent); margin-bottom: 24px; font-variant-numeric: tabular-nums;" id="age-num-display">25</div>
+
+    <input type="range" id="age-range-picker" min="15" max="100" value="25" style="width: 100%; margin-bottom: 32px; accent-color: var(--cyan-accent); cursor: pointer;">
+
+    <button id="confirm-age-btn" class="btn-primary" style="width: 100%; font-size: 1rem; padding: 14px;">Confirm & Proceed to Survey</button>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    const slider = document.getElementById('age-range-picker');
+    const display = document.getElementById('age-num-display');
+
+    slider.addEventListener('input', (e) => display.innerText = e.target.value);
+
+    document.getElementById('confirm-age-btn').addEventListener('click', async () => {
+      const session = await checkAuthSession();
+      if (!session) return;
+
+      const selectedAge = parseInt(slider.value);
+
+      await window.supabaseClient.from('users').upsert({
+        id: session.user.id,
+        email: session.user.email,
+        age: selectedAge,
+        updated_at: new Date()
+      });
+
+      window.location.href = 'survey.html';
+    });
+  </script>
+</body>
+</html>
