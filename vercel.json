@@ -1,0 +1,15 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/age-selection", "destination": "/age-selection.html" },
+    { "source": "/survey", "destination": "/survey.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/music", "destination": "/music.html" },
+    { "source": "/monitoring", "destination": "/monitoring.html" },
+    { "source": "/routine", "destination": "/routine.html" },
+    { "source": "/promises", "destination": "/promises.html" },
+    { "source": "/games", "destination": "/games.html" },
+    { "source": "/meditation", "destination": "/meditation.html" },
+    { "source": "/settings", "destination": "/settings.html" }
+  ]
+}
