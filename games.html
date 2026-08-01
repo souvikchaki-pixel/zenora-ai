@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Brain Relief & Games</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body style="padding: 40px 20px;">
+
+  <div style="max-width: 800px; margin: 0 auto; text-align: center;" class="glass-card p-8">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+      <h2 class="text-gradient" style="font-size: 1.8rem; font-weight: 800;">Cognitive Relief & Mini-Games</h2>
+      <a href="dashboard.html" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.9rem;">← Dashboard</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;">
+      <div class="glass-card p-6">
+        <h3 style="color: var(--cyan-accent);">Tile Match Puzzle</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 12px 0;">Pattern matching drill for focus.</p>
+        <button class="btn-primary" onclick="alert('Starting Tile Match Puzzle...')">Play Session</button>
+      </div>
+
+      <div class="glass-card p-6">
+        <h3 style="color: var(--purple-accent);">Brain IQ Sequence</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 12px 0;">Sequence recall challenge.</p>
+        <button class="btn-primary" onclick="alert('Starting Memory Drill...')">Play Session</button>
+      </div>
+
+      <div class="glass-card p-6">
+        <h3 style="color: var(--blue-accent);">4-7-8 Breathing Circle</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 12px 0;">Visual breathing pacing circle.</p>
+        <button class="btn-primary" onclick="alert('Inhale... Hold... Exhale...')">Start Breathing</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
