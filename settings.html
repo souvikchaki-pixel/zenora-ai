@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Settings & Help</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body style="padding: 40px 20px;">
+
+  <div style="max-width: 720px; margin: 0 auto;" class="glass-card p-8">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
+      <h2 class="text-gradient" style="font-size: 1.8rem; font-weight: 800;">Settings & Support</h2>
+      <a href="dashboard.html" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.9rem;">← Dashboard</a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="background: rgba(255,255,255,0.03); padding: 18px; border-radius: 12px; border: 1px solid var(--card-border);">
+        <h4 style="color: var(--text-main);">Data Privacy & Security</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Habits, surveys, and check-ins are isolated using Supabase Row Level Security.</p>
+      </div>
+
+      <div style="background: rgba(255,255,255,0.03); padding: 18px; border-radius: 12px; border: 1px solid var(--card-border);">
+        <h4 style="color: var(--text-main);">Frequently Asked Questions</h4>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Q: How does Groq AI generate my routines?<br>A: It analyzes your wellness metrics and habits to produce optimized time allocations.</p>
+      </div>
+
+      <button onclick="handleLogout()" class="btn-primary" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; margin-top: 12px;">Sign Out</button>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
