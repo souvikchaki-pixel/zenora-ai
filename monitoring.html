@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Daily Monitoring</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body style="padding: 40px 20px;">
+
+  <div style="max-width: 650px; margin: 0 auto;" class="glass-card p-8">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <h2 class="text-gradient" style="font-size: 1.8rem; font-weight: 800;">Daily Monitoring Check</h2>
+      <a href="dashboard.html" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.9rem;">← Dashboard</a>
+    </div>
+
+    <form id="daily-checkin-form" style="display: flex; flex-direction: column; gap: 18px;">
+      <div>
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Mood Today (1: Low - 10: Excellent)</label>
+        <input type="range" min="1" max="10" value="7" id="dm-mood" class="input-field" style="accent-color: var(--cyan-accent);">
+      </div>
+
+      <div>
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Stress Index (1: Very Low - 10: High Stress)</label>
+        <input type="range" min="1" max="10" value="3" id="dm-stress" class="input-field" style="accent-color: #f87171;">
+      </div>
+
+      <div>
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Energy Level (1: Exhausted - 10: Energetic)</label>
+        <input type="range" min="1" max="10" value="6" id="dm-energy" class="input-field" style="accent-color: var(--purple-accent);">
+      </div>
+
+      <div>
+        <label style="font-size: 0.85rem; color: var(--text-muted);">Daily Journal / Notes</label>
+        <textarea id="dm-notes" class="input-field" rows="3" placeholder="What went well today? What triggered stress?"></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary" style="padding: 12px; font-size: 1rem;">Save Daily Monitoring Log</button>
+    </form>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.getElementById('daily-checkin-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const session = await checkAuthSession();
+      if (!session) return;
+
+      await window.supabaseClient.from('daily_monitoring').insert({
+        user_id: session.user.id,
+        mood: parseInt(document.getElementById('dm-mood').value),
+        stress: parseInt(document.getElementById('dm-stress').value),
+        energy: parseInt(document.getElementById('dm-energy').value),
+        notes: document.getElementById('dm-notes').value,
+        created_at: new Date()
+      });
+
+      alert("Daily monitoring log successfully saved!");
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>
