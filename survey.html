@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Wellness Assessment</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body style="padding: 40px 20px;">
+
+  <div style="max-width: 680px; margin: 0 auto;" class="glass-card p-8">
+    <div style="margin-bottom: 28px;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
+        <span>Assessment Progress</span>
+        <span id="progress-text">100% Completed</span>
+      </div>
+      <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+        <div id="progress-bar" style="width: 100%; height: 100%; background: linear-gradient(90deg, var(--cyan-accent), var(--purple-accent));"></div>
+      </div>
+    </div>
+
+    <h2 class="text-gradient" style="font-size: 1.8rem; font-weight: 800; margin-bottom: 8px;">Mind & Body Baseline Survey</h2>
+    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 32px;">Rate your current state from 1 (Needs Attention) to 10 (Optimal)</p>
+
+    <div id="survey-questions-wrap" style="display: flex; flex-direction: column; gap: 20px;"></div>
+
+    <button id="submit-survey-btn" class="btn-primary" style="width: 100%; margin-top: 32px; padding: 14px; font-size: 1rem;">Analyze & Generate Routine</button>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    const surveyFields = [
+      { key: 'sleep_quality', label: '1. Sleep Quality' },
+      { key: 'stress_level', label: '2. Stress Level' },
+      { key: 'work_life_balance', label: '3. Work-Life Balance' },
+      { key: 'life_satisfaction', label: '4. Life Satisfaction' },
+      { key: 'energy_levels', label: '5. Energy Levels' },
+      { key: 'social_connection', label: '6. Social Connection' }
+    ];
+
+    const surveyValues = {};
+    const wrap = document.getElementById('survey-questions-wrap');
+
+    surveyFields.forEach((item, idx) => {
+      surveyValues[item.key] = 5;
+      wrap.innerHTML += `
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 18px; border-radius: 14px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <span style="font-size: 0.95rem; font-weight: 600;">${item.label}</span>
+            <span id="val-${item.key}" style="color: var(--cyan-accent); font-weight: 700; font-size: 1.1rem;">5</span>
+          </div>
+          <input type="range" min="1" max="10" value="5" style="width: 100%; accent-color: var(--cyan-accent); cursor: pointer;" 
+            oninput="document.getElementById('val-${item.key}').innerText = this.value; surveyValues['${item.key}'] = parseInt(this.value);">
+        </div>
+      `;
+    });
+
+    document.getElementById('submit-survey-btn').addEventListener('click', async function() {
+      const session = await checkAuthSession();
+      if (!session) return;
+
+      this.innerText = "Analyzing with Groq AI Engine...";
+      this.disabled = true;
+
+      await window.supabaseClient.from('wellness_survey').insert({
+        user_id: session.user.id,
+        scores: surveyValues,
+        created_at: new Date()
+      });
+
+      const prompt = `Analyze these wellness metrics (1-10): ${JSON.stringify(surveyValues)}. Generate a structured routine (Morning, Afternoon, Evening) with specific times and concise wellness activities. Return plain markdown formatted output.`;
+
+      try {
+        const aiRoutine = await callGroqAI(prompt);
+        await window.supabaseClient.from('user_routines').insert({
+          user_id: session.user.id,
+          routine_data: aiRoutine,
+          created_at: new Date()
+        });
+      } catch (err) {
+        console.error("AI Generation Warning:", err);
+      }
+
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>
