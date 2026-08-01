@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Command Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="display: flex; min-height: 100vh;">
+
+  <!-- Sidebar Nav -->
+  <aside style="width: 280px; border-right: 1px solid var(--card-border); display: flex; flex-direction: column; justify-content: space-between;" class="glass-card p-6">
+    <div>
+      <h2 class="text-gradient" style="font-size: 1.6rem; font-weight: 800; margin-bottom: 36px; letter-spacing: -0.5px;">Zenora AI</h2>
+      <nav style="display: flex; flex-direction: column; gap: 14px;">
+        <a href="dashboard.html" style="color: var(--cyan-accent); font-weight: 600; text-decoration: none; padding: 10px 14px; background: rgba(0,242,254,0.1); border-radius: 10px; border: 1px solid rgba(0,242,254,0.2);">Dashboard Home</a>
+        <a href="monitoring.html" style="color: var(--text-muted); text-decoration: none; padding: 10px 14px; border-radius: 10px; transition: background 0.2s;">Daily Monitoring</a>
+        <a href="routine.html" style="color: var(--text-muted); text-decoration: none; padding: 10px 14px; border-radius: 10px;">Your Routine</a>
+        <a href="promises.html" style="color: var(--text-muted); text-decoration: none; padding: 10px 14px; border-radius: 10px;">Future Self Promise</a>
+        <a href="games.html" style="color: var(--text-muted); text-decoration: none; padding: 10px 14px; border-radius: 10px;">Brain Relief & Games</a>
+        <a href="meditation.html" style="color: var(--text-muted); text-decoration: none; padding: 10px 14px; border-radius: 10px;">Meditation Sessions</a>
+        <a href="settings.html" style="color: var(--text-muted); text-decoration: none; padding: 10px 14px; border-radius: 10px;">Settings & Support</a>
+      </nav>
+    </div>
+    <button onclick="handleLogout()" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; text-align: center;">Log Out</button>
+  </aside>
+
+  <!-- Main Work Area -->
+  <main style="flex: 1; padding: 36px; overflow-y: auto;">
+    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+      <div>
+        <h1 style="font-size: 2rem; font-weight: 800;">Welcome back, <span id="user-display-name" class="text-gradient">Zenora User</span> 👋</h1>
+        <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 4px;" id="current-timestamp-bar"></p>
+      </div>
+      <button onclick="openHabitModal()" class="btn-primary" style="display: flex; align-items: center; gap: 8px;">
+        <span>+</span> Log Habit Check-In
+      </button>
+    </header>
+
+    <!-- Grid Container -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+      
+      <!-- Card 1: Today's Routine Progress -->
+      <div class="glass-card p-6">
+        <h3 style="color: var(--cyan-accent); font-size: 1.1rem; margin-bottom: 12px;">Today's Routine Progress</h3>
+        <p style="font-size: 0.9rem; color: var(--text-main); font-weight: 600;">Current Task: Morning Breathing & Mindful Prep</p>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">Time Remaining: 15 Mins</p>
+        <div style="margin-top: 16px; background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px; overflow: hidden;">
+          <div style="width: 65%; height: 100%; background: var(--cyan-accent);"></div>
+        </div>
+      </div>
+
+      <!-- Card 2: Daily Stats -->
+      <div class="glass-card p-6">
+        <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Daily Metrics Snapshot</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.85rem;">
+          <div>Mood Today: <span style="color: var(--cyan-accent); font-weight: 700;">😌 Calm (8/10)</span></div>
+          <div>Stress Level: <span style="color: #f87171; font-weight: 700;">3/10</span></div>
+          <div>Sleep Hours: <span style="font-weight: 700;">7.5 Hrs</span></div>
+          <div>Completion Rate: <span style="color: #34d399; font-weight: 700;">80%</span></div>
+        </div>
+      </div>
+
+      <!-- Card 3: Weekly Progress -->
+      <div class="glass-card p-6">
+        <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Weekly Stress Trend</h3>
+        <canvas id="weeklyStressChart" style="max-height: 140px;"></canvas>
+      </div>
+
+      <!-- Card 4: Quick Actions -->
+      <div class="glass-card p-6" style="display: flex; flex-direction: column; gap: 10px;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 4px;">Quick Actions</h3>
+        <a href="meditation.html" class="btn-primary" style="text-align: center; text-decoration: none;">Start Meditation</a>
+        <a href="monitoring.html" style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; text-align: center; color: #fff; text-decoration: none; font-size: 0.9rem;">Log Daily Check-In</a>
+      </div>
+
+      <!-- Card 5: AI Motivational Quote -->
+      <div class="glass-card p-6">
+        <h3 style="color: var(--purple-accent); font-size: 1.1rem; margin-bottom: 8px;">AI Personal Perspective</h3>
+        <blockquote id="ai-quote-box" style="font-style: italic; font-size: 0.9rem; color: #e2e8f0; line-height: 1.5;">Generating perspective from Groq AI...</blockquote>
+      </div>
+
+      <!-- Card 6: Next Steps -->
+      <div class="glass-card p-6">
+        <h3 style="font-size: 1.1rem; margin-bottom: 8px;">Next Steps</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Upcoming: Evening Reflection Journal at 8:00 PM.</p>
+        <a href="promises.html" style="display: inline-block; margin-top: 12px; color: var(--cyan-accent); font-size: 0.85rem; text-decoration: none; font-weight: 600;">View Future Promises →</a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Prompt 5: Habit Tracker Modal Overlay -->
+  <div class="modal-overlay" id="habit-modal-overlay">
+    <div class="glass-card p-8" style="max-width: 540px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 class="text-gradient" style="font-size: 1.4rem; font-weight: 800;">Habit & Dependency Check-In</h3>
+        <span onclick="closeHabitModal()" style="cursor: pointer; font-size: 1.2rem; color: var(--text-muted);">✕</span>
+      </div>
+
+      <form id="habit-tracker-form" style="display: flex; flex-direction: column; gap: 14px;">
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">1. Smoking Frequency (1: Never - 10: Heavy Daily)</label>
+          <input type="number" min="1" max="10" id="ht-smoking" class="input-field" value="1">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">2. Alcohol Frequency (1: Never - 10: Heavy Daily)</label>
+          <input type="number" min="1" max="10" id="ht-drinking" class="input-field" value="1">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">3. Masturbation Frequency (1: Never - 7: Daily)</label>
+          <input type="number" min="1" max="7" id="ht-masturbation" class="input-field" value="1">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">4. Anger Management Triggers (1: Never - 10: Always)</label>
+          <input type="number" min="1" max="10" id="ht-anger" class="input-field" value="1">
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">5. Relationship Status</label>
+          <select id="ht-relationship" class="input-field">
+            <option>Single</option>
+            <option>In Relationship</option>
+            <option>Married</option>
+            <option>Divorced</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">6. Trauma History or Trigger Notes</label>
+          <textarea id="ht-trauma" class="input-field" rows="2" placeholder="Brief note or 'None'"></textarea>
+        </div>
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">7. Other Unwanted Habits</label>
+          <textarea id="ht-other" class="input-field" rows="2" placeholder="List or 'None'"></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary" style="margin-top: 8px;">Save Habit Record</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.getElementById('current-timestamp-bar').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    async function initDashboard() {
+      const session = await checkAuthSession();
+      if (!session) return;
+
+      document.getElementById('user-display-name').innerText = session.user.email.split('@')[0];
+
+      // Render Chart
+      const ctx = document.getElementById('weeklyStressChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Stress Index',
+            data: [5, 4, 6, 3, 4, 2, 3],
+            borderColor: '#00f2fe',
+            borderWidth: 2,
+            tension: 0.4,
+            pointBackgroundColor: '#9d4edd'
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+      });
+
+      // AI Motivation
+      try {
+        const quote = await callGroqAI("Give a 2-sentence empowering mental clarity message for someone focusing on growth.");
+        document.getElementById('ai-quote-box').innerText = quote;
+      } catch (err) {
+        document.getElementById('ai-quote-box').innerText = "“Clarity comes from engagement, not from thought. Focus on today's small wins.”";
+      }
+    }
+
+    function openHabitModal() { document.getElementById('habit-modal-overlay').classList.add('active'); }
+    function closeHabitModal() { document.getElementById('habit-modal-overlay').classList.remove('active'); }
+
+    document.getElementById('habit-tracker-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const session = await checkAuthSession();
+      if (!session) return;
+
+      await window.supabaseClient.from('habit_tracker').insert({
+        user_id: session.user.id,
+        smoking: parseInt(document.getElementById('ht-smoking').value),
+        drinking: parseInt(document.getElementById('ht-drinking').value),
+        masturbation: parseInt(document.getElementById('ht-masturbation').value),
+        anger: parseInt(document.getElementById('ht-anger').value),
+        relationship: document.getElementById('ht-relationship').value,
+        trauma_history: document.getElementById('ht-trauma').value,
+        other_addictions: document.getElementById('ht-other').value,
+        created_at: new Date()
+      });
+
+      closeHabitModal();
+      alert("Habit record updated successfully!");
+    });
+
+    initDashboard();
+  </script>
+</body>
+</html>
