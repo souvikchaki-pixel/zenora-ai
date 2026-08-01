@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenora AI — Promise Capsule</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body style="padding: 40px 20px;">
+
+  <div style="max-width: 680px; margin: 0 auto;" class="glass-card p-8">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h2 class="text-gradient" style="font-size: 1.8rem; font-weight: 800;">Promise to Your Future Self</h2>
+      <a href="dashboard.html" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.9rem;">← Dashboard</a>
+    </div>
+
+    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 24px;">Write a meaningful commitment to your future self. Groq AI will draft a future-perspective letter capsule.</p>
+
+    <form id="promise-form" style="display: flex; flex-direction: column; gap: 16px;">
+      <div>
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Your Promise Statement</label>
+        <textarea id="promise-statement" class="input-field" rows="4" maxlength="500" placeholder="I promise to stay committed to my wellness goals and remain calm under stress..." required></textarea>
+      </div>
+
+      <div>
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Target Deadline</label>
+        <input type="date" id="promise-deadline" class="input-field" required>
+      </div>
+
+      <button type="submit" class="btn-primary" id="generate-letter-btn">Generate Future Letter Capsule</button>
+    </form>
+
+    <div id="ai-letter-card" style="display: none; margin-top: 32px; background: rgba(255,255,255,0.03); border-left: 4px solid var(--cyan-accent); padding: 20px; border-radius: 12px;">
+      <h3 style="color: var(--cyan-accent); margin-bottom: 12px;">Letter From Your Future Self</h3>
+      <div id="ai-letter-body" style="white-space: pre-line; line-height: 1.6; font-size: 0.9rem; color: #e2e8f0;"></div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/aurora-bg.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    document.getElementById('promise-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const session = await checkAuthSession();
+      if (!session) return;
+
+      const btn = document.getElementById('generate-letter-btn');
+      btn.innerText = "Encrypting Capsule & Writing Letter...";
+      btn.disabled = true;
+
+      const statement = document.getElementById('promise-statement').value;
+      const deadline = document.getElementById('promise-deadline').value;
+
+      const aiPrompt = `Write an inspiring letter from the user's Future Self. User promise statement: "${statement}". Goal deadline date: ${deadline}. Follow this structure:
+      Dear [User Name],
+      I see your promise: [promise text]
+      By [deadline], you will achieve this...
+      Here are 3 specific steps:
+      1. Step 1
+      2. Step 2
+      3. Step 3
+      With belief in you,
+      Your Future Self`;
+
+      try {
+        const letter = await callGroqAI(aiPrompt);
+
+        await window.supabaseClient.from('user_promises').insert({
+          user_id: session.user.id,
+          promise_text: statement,
+          deadline: deadline,
+          letter_content: letter,
+          created_at: new Date()
+        });
+
+        document.getElementById('ai-letter-body').innerText = letter;
+        document.getElementById('ai-letter-card').style.display = 'block';
+        btn.innerText = "Promise Saved to Capsule!";
+      } catch (err) {
+        btn.innerText = "Failed to Generate";
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
