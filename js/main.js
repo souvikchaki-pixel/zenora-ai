@@ -9,20 +9,15 @@ async function checkAuthSession(redirectOnFail = true) {
   return session;
 }
 
+// Updated callGroqAI function that routes through Vercel's secure backend
 async function callGroqAI(promptText) {
-  const apiKey = window.ZENORA_CONFIG.GROQ_API_KEY;
-  const model = window.ZENORA_CONFIG.GROQ_MODEL;
-
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const response = await fetch('/api/chat', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      model: model,
-      messages: [{ role: 'user', content: promptText }],
-      temperature: 0.7
+      prompt: promptText
     })
   });
 
