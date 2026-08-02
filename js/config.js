@@ -1,12 +1,9 @@
 // js/config.js
 
 window.ZENORA_CONFIG = {
-  // Supabase Configuration
+  // Paste your Supabase Anon key inside the quotes below
   SUPABASE_URL: "https://zqcdtixifoowdfhxdsbnu.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxY2R0aXhpZm93ZGZoeGRzYm51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzODY5ODgsImV4cCI6MjEwMDk2Mjk4OH0.fExZ3X0BXqRC-scHcTG6B1sqUVAZZQP3IrIeHaMdkyI",
-  
-  // Groq Model Setting (Key is securely handled via Vercel Environment Variables)
-  GROQ_MODEL: "llama-3.3-70b-versatile"
+  SUPABASE_ANON_KEY: "PASTE_YOUR_SUPABASE_ANON_KEY_HERE"
 };
 
 // Global Supabase Client Initialization
