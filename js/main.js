@@ -1,54 +1,50 @@
-async function checkAuthSession(redirectOnFail = true) {
-  if (!window.supabaseClient) return null;
-  const { data: { session } } = await window.supabaseClient.auth.getSession();
+// Wait for DOM to load before attaching event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
 
-  if (!session && redirectOnFail) {
-    window.location.href = 'index.html';
-    return null;
-  }
-  return session;
-}
+  if (chatForm && chatInput && chatMessages) {
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Prevent page reload
 
-// Updated callGroqAI function that routes through Vercel's secure backend
-async function callGroqAI(promptText) {
-  try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        prompt: promptText
-      })
+      const userText = chatInput.value.trim();
+      if (!userText) return;
+
+      // 1. Display User Message
+      appendMessage(userText, 'user');
+      chatInput.value = '';
+
+      // 2. Display Loading Indicator
+      const loadingMessage = appendMessage('Zenora AI is thinking...', 'ai-loading');
+
+      try {
+        // 3. Call AI Backend
+        const aiReply = await callGroqAI(userText);
+        
+        // Remove loading message & show actual response
+        if (loadingMessage) loadingMessage.remove();
+        appendMessage(aiReply, 'ai');
+
+      } catch (err) {
+        if (loadingMessage) loadingMessage.remove();
+        appendMessage('Error: ' + err.message, 'error');
+      }
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Groq AI Request Failed');
-    }
-
-    if (data.choices && data.choices[0]?.message?.content) {
-      return data.choices[0].message.content;
-    } else {
-      throw new Error('Invalid response structure from AI.');
-    }
-  } catch (error) {
-    console.error('AI Error:', error);
-    throw error;
   }
-}
+});
 
-function handleLogout() {
-  if (window.supabaseClient) {
-    window.supabaseClient.auth.signOut().then(() => {
-      localStorage.removeItem('zenora_user');
-      localStorage.removeItem('zenora_user_session');
-      window.location.href = 'index.html';
-    });
-  } else {
-    localStorage.removeItem('zenora_user');
-    localStorage.removeItem('zenora_user_session');
-    window.location.href = 'index.html';
-  }
+// Helper function to append messages into the chat UI
+function appendMessage(text, sender) {
+  const chatMessages = document.getElementById('chat-messages');
+  if (!chatMessages) return null;
+
+  const msgDiv = document.createElement('div');
+  msgDiv.classList.add('message', sender);
+  msgDiv.textContent = text;
+
+  chatMessages.appendChild(msgDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
+
+  return msgDiv;
 }
