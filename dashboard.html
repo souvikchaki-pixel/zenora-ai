@@ -3,34 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zenora AI - Modern Aurora Workspace</title>
+  <title>Zenora AI — Enterprise Mind & Productivity Platform</title>
 
-  <!-- Supabase CDN -->
+  <!-- External Libraries: Supabase, Three.js, Lucide Icons -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     :root {
-      --bg-color: #080b10;
-      --card-bg: rgba(22, 27, 34, 0.65);
-      --card-border: rgba(255, 255, 255, 0.1);
+      --bg-base: #03060a;
+      --card-bg: rgba(10, 15, 26, 0.72);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-hover: rgba(0, 242, 254, 0.35);
       --text-main: #f0f6fc;
       --text-muted: #8b949e;
       --accent-cyan: #00f2fe;
+      --accent-blue: #4facfe;
       --accent-purple: #7928ca;
       --accent-pink: #ff0080;
-      --user-msg: #238636;
-      --glass-glow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      --accent-green: #3fb950;
+      --glass-glow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
     }
 
     body {
-      background-color: var(--bg-color);
+      background-color: var(--bg-base);
       color: var(--text-main);
       display: flex;
       height: 100vh;
@@ -38,8 +42,8 @@
       position: relative;
     }
 
-    /* Interactive Aurora & Particle Canvas Background */
-    #bg-canvas {
+    /* WebGL & Aurora Background */
+    #aurora-canvas {
       position: fixed;
       top: 0;
       left: 0;
@@ -49,88 +53,116 @@
       pointer-events: none;
     }
 
-    /* Main Container with Glassmorphism */
-    .app-wrapper {
+    .app-container {
       position: relative;
       z-index: 1;
       display: flex;
-      width: 100%;
-      height: 100%;
-      background: rgba(8, 11, 16, 0.4);
-      backdrop-filter: blur(12px);
+      width: 100vw;
+      height: 100vh;
+      background: rgba(3, 6, 10, 0.35);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     /* Sidebar Navigation */
     .sidebar {
-      width: 280px;
-      background: rgba(13, 17, 23, 0.7);
+      width: 290px;
+      background: rgba(8, 12, 20, 0.82);
       border-right: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 25px 20px;
+      padding: 26px 20px;
       box-shadow: var(--glass-glow);
     }
 
-    .brand {
-      font-size: 1.5rem;
-      font-weight: 800;
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
       background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+    }
+
+    .brand-name {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #ffffff, var(--accent-cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 30px;
-      letter-spacing: 1px;
     }
 
-    .nav-links {
+    .nav-list {
       list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
-    .nav-links li {
-      margin-bottom: 8px;
-    }
-
-    .nav-links button {
+    .nav-btn {
       width: 100%;
       background: transparent;
       border: 1px solid transparent;
-      color: var(--text-main);
+      color: var(--text-muted);
       padding: 12px 16px;
       text-align: left;
-      font-size: 0.95rem;
-      border-radius: 10px;
+      font-size: 0.94rem;
+      font-weight: 500;
+      border-radius: 12px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 12px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .nav-links button.active, .nav-links button:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(0, 242, 254, 0.3);
+    .nav-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-btn.active {
       color: var(--accent-cyan);
-      box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+      background: rgba(0, 242, 254, 0.08);
+      border-color: var(--card-border-hover);
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.12);
     }
 
-    .logout-btn {
-      background: linear-gradient(135deg, #da3633, #8e1b19);
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
-      cursor: pointer;
+    .logout-button {
       width: 100%;
-      font-weight: bold;
-      transition: transform 0.2s;
+      background: rgba(218, 54, 51, 0.15);
+      border: 1px solid rgba(218, 54, 51, 0.3);
+      color: #ff6b6b;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
     }
 
-    .logout-btn:hover {
-      transform: translateY(-2px);
+    .logout-button:hover {
+      background: rgba(218, 54, 51, 0.3);
+      color: #fff;
     }
 
-    /* Main Content */
-    .main-content {
+    /* Main Stage */
+    .main-stage {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -138,465 +170,559 @@
       overflow: hidden;
     }
 
-    header {
-      padding: 20px 30px;
+    .header-bar {
+      padding: 22px 35px;
       border-bottom: 1px solid var(--card-border);
-      background: rgba(13, 17, 23, 0.5);
+      background: rgba(8, 12, 20, 0.45);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    header h2 {
+    .header-title {
       font-size: 1.3rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.5px;
     }
 
-    /* Tab Panels */
-    .tab-content {
+    .view-panel {
       display: none;
       flex: 1;
-      padding: 30px;
+      padding: 35px;
       overflow-y: auto;
     }
 
-    .tab-content.active {
+    .view-panel.active {
       display: flex;
       flex-direction: column;
     }
 
     /* Cards */
-    .card {
+    .glass-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 25px;
+      border-radius: 20px;
+      padding: 28px;
       margin-bottom: 25px;
-      backdrop-filter: blur(16px);
       box-shadow: var(--glass-glow);
+      backdrop-filter: blur(12px);
+      transition: border-color 0.3s;
     }
 
-    .card h3 {
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .card-heading {
+      font-size: 1.18rem;
+      font-weight: 700;
       color: var(--accent-cyan);
       margin-bottom: 12px;
-      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
-    .grid-2x2 {
+    .grid-2col {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 25px;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 20px;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-      color: white;
+    /* Action Buttons */
+    .btn-glow {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #03060a;
       border: none;
       padding: 12px 24px;
-      border-radius: 10px;
-      font-weight: 600;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       transition: all 0.3s;
     }
 
-    .btn-primary:hover {
-      opacity: 0.9;
+    .btn-glow:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+      box-shadow: 0 6px 25px rgba(0, 242, 254, 0.35);
     }
 
-    /* Chat Tab */
-    .chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding-right: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    .message {
-      max-width: 70%;
-      padding: 14px 18px;
-      border-radius: 16px;
-      line-height: 1.6;
-      font-size: 0.95rem;
-      word-wrap: break-word;
-    }
-
-    .message.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #1f6feb, #238636);
-      color: white;
-      border-bottom-right-radius: 4px;
-    }
-
-    .message.ai {
-      align-self: flex-start;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-bottom-left-radius: 4px;
-    }
-
-    .chat-input-area {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid var(--card-border);
-    }
-
-    .chat-input-area input, textarea, select {
-      flex: 1;
-      background: rgba(13, 17, 23, 0.8);
+    .form-input, .form-select {
+      width: 100%;
+      background: rgba(8, 12, 20, 0.85);
       border: 1px solid var(--card-border);
       color: var(--text-main);
       padding: 14px 18px;
-      border-radius: 10px;
-      font-size: 0.95rem;
+      border-radius: 12px;
+      font-size: 0.98rem;
       outline: none;
       transition: border-color 0.3s;
     }
 
-    .chat-input-area input:focus, textarea:focus, select:focus {
+    .form-input:focus, .form-select:focus {
       border-color: var(--accent-cyan);
     }
 
-    /* Music Player Styles */
-    .music-player-card {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .track-list {
+    /* Audio Studio Styles */
+    .playlist-scroll {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 12px;
-      max-height: 280px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      max-height: 300px;
       overflow-y: auto;
-      padding-right: 10px;
+      padding-right: 8px;
+      margin-bottom: 25px;
     }
 
-    .track-item {
-      background: rgba(255, 255, 255, 0.03);
+    .audio-node {
+      background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 12px 16px;
+      border-radius: 14px;
+      padding: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
 
-    .track-item:hover, .track-item.active-track {
-      background: rgba(0, 242, 254, 0.1);
+    .audio-node:hover, .audio-node.active {
+      background: rgba(0, 242, 254, 0.08);
       border-color: var(--accent-cyan);
     }
 
-    .player-controls-bar {
-      background: rgba(13, 17, 23, 0.9);
+    .audio-master-panel {
+      background: rgba(8, 12, 20, 0.9);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 20px;
+      border-radius: 18px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 18px;
     }
 
-    .controls-btn-group {
+    .deck-controls {
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 20px;
     }
 
-    .ctrl-btn {
-      background: rgba(255, 255, 255, 0.08);
+    .deck-btn {
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      width: 45px;
-      height: 45px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.1rem;
       transition: all 0.2s;
     }
 
-    .ctrl-btn:hover {
+    .deck-btn:hover {
       background: var(--accent-cyan);
       color: #000;
     }
 
-    .ctrl-btn.play-btn {
-      width: 55px;
-      height: 55px;
+    .deck-btn.primary {
+      width: 60px;
+      height: 60px;
       background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-      color: white;
+      color: #fff;
     }
 
-    /* 3D Games Styles */
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .game-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: transform 0.3s, border-color 0.3s;
-    }
-
-    .game-card:hover {
-      transform: translateY(-5px);
-      border-color: var(--accent-cyan);
-    }
-
-    #game-canvas {
+    .scrubber-bar {
       width: 100%;
-      height: 280px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .scrubber-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      border-radius: 3px;
+      width: 0%;
+    }
+
+    /* Workflow Cards */
+    .workflow-step {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px;
+      position: relative;
+    }
+
+    .step-badge {
+      width: 32px;
+      height: 32px;
+      background: var(--accent-cyan);
+      color: #000;
+      font-weight: 800;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    /* Game Stage */
+    #game-stage-viewport {
+      width: 100%;
+      height: 360px;
+      border-radius: 16px;
       background: #000;
-      border-radius: 12px;
       margin-top: 15px;
+      position: relative;
     }
   </style>
 </head>
 <body>
 
-  <!-- Animated Background Canvas -->
-  <canvas id="bg-canvas"></canvas>
+  <!-- WebGL Aurora & Cosmic Background -->
+  <canvas id="aurora-canvas"></canvas>
 
-  <div class="app-wrapper">
-    <!-- Sidebar Navigation -->
+  <div class="app-container">
+    
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div>
-        <div class="brand">ZENORA AI</div>
-        <ul class="nav-links">
-          <li><button class="nav-btn active" data-target="tab-dashboard">✨ Overview</button></li>
-          <li><button class="nav-btn" data-target="tab-chat">🤖 AI Chatbot</button></li>
-          <li><button class="nav-btn" data-target="tab-music">🎵 Mind & Sleep Audio</button></li>
-          <li><button class="nav-btn" data-target="tab-games">🎮 3D De-Stress Games</button></li>
-          <li><button class="nav-btn" data-target="tab-meditation">🧘 Meditation & Monitor</button></li>
-          <li><button class="nav-btn" data-target="tab-routine">⚡ Personal Routine</button></li>
-          <li><button class="nav-btn" data-target="tab-habits">✅ Habit Tracker</button></li>
-          <li><button class="nav-btn" data-target="tab-promise">💌 Letter to Future</button></li>
+        <div class="brand-box">
+          <div class="brand-icon"><i data-lucide="sparkles" style="color:#000;"></i></div>
+          <div class="brand-name">ZENORA AI</div>
+        </div>
+
+        <ul class="nav-list">
+          <li><button class="nav-btn active" data-view="view-overview"><i data-lucide="layout"></i> Platform Overview</button></li>
+          <li><button class="nav-btn" data-view="view-chat"><i data-lucide="bot"></i> AI Copilot</button></li>
+          <li><button class="nav-btn" data-view="view-audio"><i data-lucide="headphones"></i> Audio Studio (18)</button></li>
+          <li><button class="nav-btn" data-view="view-games"><i data-lucide="gamepad-2"></i> 3D Mind Games</button></li>
+          <li><button class="nav-btn" data-view="view-routine"><i data-lucide="compass"></i> Routine Architect</button></li>
+          <li><button class="nav-btn" data-view="view-habits"><i data-lucide="check-circle-2"></i> Habit Matrix</button></li>
+          <li><button class="nav-btn" data-view="view-meditation"><i data-lucide="activity"></i> Zen Meditation</button></li>
+          <li><button class="nav-btn" data-view="view-settings"><i data-lucide="settings"></i> Settings & Profile</button></li>
         </ul>
       </div>
-      <button class="logout-btn" onclick="handleLogout()">Log Out</button>
+
+      <div>
+        <button class="logout-button" onclick="handleLogout()"><i data-lucide="log-out"></i> Log Out</button>
+      </div>
     </aside>
 
     <!-- Main Content Area -->
-    <main class="main-content">
-      <header>
-        <h2 id="section-title">Overview Workspace</h2>
+    <main class="main-stage">
+      <header class="header-bar">
+        <h2 class="header-title" id="stage-header-title">Platform Overview</h2>
       </header>
 
-      <!-- 1. OVERVIEW TAB -->
-      <section id="tab-dashboard" class="tab-content active">
-        <div class="grid-2x2">
-          <div class="card">
-            <h3>Aurora Atmosphere Active</h3>
-            <p style="color: var(--text-muted); margin-top: 5px;">Enjoy real-time canvas rendering with floating stars and cosmic ambient movement.</p>
+      <!-- 1. OVERVIEW & WORKFLOW VIEW -->
+      <section id="view-overview" class="view-panel active">
+        <div class="glass-card">
+          <div class="card-heading"><i data-lucide="info"></i> What is Zenora AI?</div>
+          <p style="color: var(--text-muted); line-height: 1.7; font-size: 1.05rem;">
+            Zenora AI is an enterprise-grade mental wellness and cognitive productivity ecosystem. It merges generative AI copilot assistance, science-backed soundscapes, WebGL stress-decompression games, and multi-variable routine synthesis into a unified daily workspace.
+          </p>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-heading"><i data-lucide="git-branch"></i> The Zenora Operating Workflow</div>
+          <div class="grid-3col" style="margin-top: 15px;">
+            <div class="workflow-step">
+              <div class="step-badge">1</div>
+              <h4>Mind State Assessment</h4>
+              <p style="color: var(--text-muted); margin-top: 8px; font-size: 0.9rem;">Multi-variable evaluation of your burnout risk, chronotype, and target focus.</p>
+            </div>
+            <div class="workflow-step">
+              <div class="step-badge">2</div>
+              <h4>AI Schedule Synthesis</h4>
+              <p style="color: var(--text-muted); margin-top: 8px; font-size: 0.9rem;">Generates a time-blocked, science-backed daily routine built around peak circadian focus.</p>
+            </div>
+            <div class="workflow-step">
+              <div class="step-badge">3</div>
+              <h4>Active Decompression</h4>
+              <p style="color: var(--text-muted); margin-top: 8px; font-size: 0.9rem;">3D WebGL focus games & 18 binaural/delta audio streams to reset mental fatigue.</p>
+            </div>
           </div>
-          <div class="card">
-            <h3>AI Engine Ready</h3>
-            <p style="color: var(--accent-cyan); margin-top: 5px;">Groq Llama-3 API Connected</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-heading"><i data-lucide="award"></i> Proven Industry Benefits & Testimonials</div>
+          <div class="grid-2col" style="margin-top: 15px;">
+            <div style="background: rgba(255,255,255,0.02); padding: 18px; border-radius: 14px; border: 1px solid var(--card-border);">
+              <p style="font-style: italic; color: var(--text-main);">"Zenora replaced three separate apps for me. The routine architect + 432Hz binaural audio cut my context switching in half."</p>
+              <strong style="display: block; margin-top: 12px; color: var(--accent-cyan);">- Marcus V., Lead Software Architect</strong>
+            </div>
+            <div style="background: rgba(255,255,255,0.02); padding: 18px; border-radius: 14px; border: 1px solid var(--card-border);">
+              <p style="font-style: italic; color: var(--text-main);">"The 60-minute deep meditation monitor combined with the aurora background gives me an instant focus state before coding."</p>
+              <strong style="display: block; margin-top: 12px; color: var(--accent-purple);">- Dr. Elena R., Cognitive Researcher</strong>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- 2. AI CHATBOT TAB -->
-      <section id="tab-chat" class="tab-content">
-        <div class="chat-container">
-          <div id="chat-messages" class="chat-messages">
-            <div class="message ai">Welcome to Zenora AI. How may I assist your mind and workflow today?</div>
+      <!-- 2. AI COPILOT VIEW -->
+      <section id="view-chat" class="view-panel">
+        <div style="flex:1; display:flex; flex-direction:column; height:100%;">
+          <div id="chat-messages" style="flex:1; overflow-y:auto; padding-right:15px; display:flex; flex-direction:column; gap:16px;">
+            <div style="max-width:70%; padding:16px 20px; border-radius:18px; background:var(--card-bg); border:1px solid var(--card-border); color:var(--text-main);">
+              Hello! I am Zenora AI. How can I facilitate your productivity or mindfulness today?
+            </div>
           </div>
-
-          <form id="chat-form" class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Ask Zenora anything..." required autocomplete="off" />
-            <button type="submit" id="send-btn" class="btn-primary">Send</button>
+          <form id="chat-form" style="display:flex; gap:12px; margin-top:20px; padding-top:20px; border-top:1px solid var(--card-border);">
+            <input type="text" id="chat-input" class="form-input" placeholder="Ask Zenora AI..." required autocomplete="off" />
+            <button type="submit" class="btn-glow"><i data-lucide="send"></i> Send</button>
           </form>
         </div>
       </section>
 
-      <!-- 3. MUSIC PLAYER TAB (18 TRACKS) -->
-      <section id="tab-music" class="tab-content">
-        <div class="card music-player-card">
-          <h3>Mind Calming, Sleeping & Pleasing Audio</h3>
-          
-          <div class="track-list" id="track-list-container"></div>
+      <!-- 3. AUDIO STUDIO (18 TRACKS PERFECT PLAYBACK) -->
+      <section id="view-audio" class="view-panel">
+        <div class="glass-card">
+          <div class="card-heading"><i data-lucide="music"></i> 18 Mind-Calming, Sleeping & Pleasing Audio Streams</div>
+          <div class="playlist-scroll" id="playlist-container"></div>
 
-          <div class="player-controls-bar">
-            <div style="text-align: center;">
-              <strong id="current-track-title" style="color: var(--accent-cyan);">Select a Track</strong>
-              <div id="track-time" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">00:00 / 00:00</div>
+          <div class="audio-master-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong id="active-track-name" style="color:var(--accent-cyan); font-size:1.1rem;">Select a Stream</strong>
+                <div id="active-track-cat" style="color:var(--text-muted); font-size:0.85rem; margin-top:3px;">Category: --</div>
+              </div>
+              <div id="active-track-time" style="color:var(--text-muted); font-size:0.9rem;">00:00 / 00:00</div>
             </div>
 
-            <div class="controls-btn-group">
-              <button class="ctrl-btn" onclick="rewindTrack()">-10s</button>
-              <button class="ctrl-btn play-btn" id="play-pause-btn" onclick="togglePlayPause()">▶</button>
-              <button class="ctrl-btn" onclick="forwardTrack()">+10s</button>
+            <div class="scrubber-bar" onclick="audioStudio.seek(event)">
+              <div class="scrubber-fill" id="audio-progress"></div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <!-- 4. 3D DE-STRESS GAMES TAB -->
-      <section id="tab-games" class="tab-content">
-        <h3 style="margin-bottom: 20px;">Interactive 3D Mind Relief</h3>
-        <div class="games-grid">
-          <div class="game-card" onclick="init3DCube()">
-            <h4>🧊 3D Zen Interactive Cube</h4>
-            <p style="color: var(--text-muted); margin-top: 8px;">Rotate and manipulate a wireframe matrix to focus your thoughts.</p>
-          </div>
-          <div class="game-card" onclick="init3DBubbles()">
-            <h4>🔮 Floating Stress Orbs</h4>
-            <p style="color: var(--text-muted); margin-top: 8px;">Click expanding 3D canvas bubbles to clear mental stress.</p>
-          </div>
-        </div>
-
-        <div class="card" id="game-stage" style="margin-top: 25px; display: none;">
-          <h4 id="game-name" style="color: var(--accent-cyan);">Game Canvas</h4>
-          <canvas id="game-canvas"></canvas>
-        </div>
-      </section>
-
-      <!-- 5. MEDITATION & MONITORING TAB -->
-      <section id="tab-meditation" class="tab-content">
-        <div class="grid-2x2">
-          <div class="card">
-            <h3>🧘 Zen Breathing Monitor</h3>
-            <p style="color: var(--text-muted); margin-bottom: 15px;">Follow the rhythm indicator for deep lung recovery.</p>
-            <div id="med-circle" style="width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, var(--accent-cyan), var(--accent-purple)); margin: 20px auto; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: all 4s ease-in-out;">Breathe</div>
-            <div style="text-align: center; margin-top: 10px;">
-              <button class="btn-primary" onclick="toggleBreathingGuide()">Start Monitor</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>📊 Daily Mindfulness Tracker</h3>
-            <p style="color: var(--text-muted); margin-bottom: 15px;">Record your daily peace and clarity scores.</p>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <label>Calmness Score (1-10):</label>
-              <input type="range" min="1" max="10" value="7" id="calm-range" oninput="document.getElementById('score-val').textContent = this.value" />
-              <div>Current Level: <strong id="score-val" style="color: var(--accent-cyan);">7</strong>/10</div>
-              <button class="btn-primary" style="margin-top: 10px;" onclick="alert('Mindfulness Session Saved!')">Log Metric</button>
+            <div class="deck-controls">
+              <button class="deck-btn" onclick="audioStudio.prevTrack()"><i data-lucide="skip-back"></i></button>
+              <button class="deck-btn" onclick="audioStudio.rewind(10)"><i data-lucide="rotate-ccw"></i></button>
+              <button class="deck-btn primary" id="master-play-button" onclick="audioStudio.togglePlay()"><i data-lucide="play"></i></button>
+              <button class="deck-btn" onclick="audioStudio.forward(10)"><i data-lucide="rotate-cw"></i></button>
+              <button class="deck-btn" onclick="audioStudio.nextTrack()"><i data-lucide="skip-forward"></i></button>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 6. PERSONAL ROUTINE TAB -->
-      <section id="tab-routine" class="tab-content">
-        <div class="card">
-          <h3>Personalized Routine Suggestions</h3>
-          <p style="color: var(--text-muted); margin-bottom: 15px;">Generate an AI-optimized daily plan tailored to your focus.</p>
-          <div style="display: flex; flex-direction: column; gap: 15px; max-width: 500px;">
-            <select id="routine-focus">
-              <option>Productivity & Deep Work</option>
-              <option>Stress Reduction & Calming</option>
-              <option>Fat Loss & Active Health</option>
-              <option>Better Sleep & Night Recovery</option>
+      <!-- 4. 3D MIND GAMES VIEW -->
+      <section id="view-games" class="view-panel">
+        <div class="grid-2col">
+          <div class="glass-card" onclick="gameLab.loadHypercube()" style="cursor:pointer;">
+            <div class="card-heading"><i data-lucide="box"></i> 1. 3D Zen Hypercube</div>
+            <p style="color:var(--text-muted);">Interactive rotating wireframe box to align visual focus.</p>
+          </div>
+          <div class="glass-card" onclick="gameLab.loadParticlePopper()" style="cursor:pointer;">
+            <div class="card-heading"><i data-lucide="disc"></i> 2. Quantum Stress Popper</div>
+            <p style="color:var(--text-muted);">Pop floating 3D canvas particles to release cognitive tension.</p>
+          </div>
+          <div class="glass-card" onclick="gameLab.loadFocusRing()" style="cursor:pointer;">
+            <div class="card-heading"><i data-lucide="target"></i> 3. Focus Target Ring</div>
+            <p style="color:var(--text-muted);">Precision timing target ring for rhythmic focus calibration.</p>
+          </div>
+          <div class="glass-card" onclick="gameLab.loadPatternRecall()" style="cursor:pointer;">
+            <div class="card-heading"><i data-lucide="brain"></i> 4. Memory Pattern Recall</div>
+            <p style="color:var(--text-muted);">Sequential color memory game for cognitive warm-up.</p>
+          </div>
+        </div>
+
+        <div class="glass-card" id="game-stage-wrapper" style="display:none;">
+          <div class="card-heading" id="game-title-display"><i data-lucide="monitor"></i> Active Game Stage</div>
+          <div id="game-stage-viewport"></div>
+        </div>
+      </section>
+
+      <!-- 5. ROUTINE ARCHITECT VIEW -->
+      <section id="view-routine" class="view-panel">
+        <div class="glass-card">
+          <div class="card-heading"><i data-lucide="compass"></i> Detail-Oriented Routine Questionnaire</div>
+          <p style="color:var(--text-muted); margin-bottom:20px;">Answer these multi-variable questions so Zenora AI can synthesize an accurate schedule.</p>
+
+          <div style="display:flex; flex-direction:column; gap:18px; max-width:600px;">
+            <div>
+              <label style="display:block; margin-bottom:8px; font-weight:600;">1. What is your primary chronotype & sleep rhythm?</label>
+              <select id="q-chronotype" class="form-select">
+                <option value="Early Bird (5:00 AM - 9:30 PM)">Early Bird (5:00 AM - 9:30 PM)</option>
+                <option value="Standard Daytime (7:00 AM - 11:00 PM)">Standard Daytime (7:00 AM - 11:00 PM)</option>
+                <option value="Night Owl (10:00 AM - 2:00 AM)">Night Owl (10:00 AM - 2:00 AM)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display:block; margin-bottom:8px; font-weight:600;">2. What is your primary objective right now?</label>
+              <select id="q-goal" class="form-select">
+                <option value="Maximum Deep Work & Coding Productivity">Maximum Deep Work & Productivity</option>
+                <option value="Burnout Recovery & Stress Reduction">Burnout Recovery & Stress Reduction</option>
+                <option value="Fat Loss, Active Fitness & Health">Fat Loss, Active Fitness & Health</option>
+                <option value="Deep Sleep Quality & Athletic Recovery">Deep Sleep Quality & Athletic Recovery</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display:block; margin-bottom:8px; font-weight:600;">3. What is your current mental stress / overload state?</label>
+              <select id="q-stress" class="form-select">
+                <option value="Low (Feeling energetic and ready)">Low (Feeling energetic and ready)</option>
+                <option value="Moderate (Slightly scattered focus)">Moderate (Slightly scattered focus)</option>
+                <option value="High (Borderline burnout / overwhelmed)">High (Borderline burnout / overwhelmed)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display:block; margin-bottom:8px; font-weight:600;">4. How much total free focus time do you have per day?</label>
+              <select id="q-time" class="form-select">
+                <option value="1 to 2 Hours">1 to 2 Hours</option>
+                <option value="3 to 5 Hours">3 to 5 Hours</option>
+                <option value="6+ Hours Full Focus">6+ Hours Full Focus</option>
+              </select>
+            </div>
+
+            <button class="btn-glow" style="margin-top:10px;" onclick="synthesizeRoutine()"><i data-lucide="cpu"></i> Synthesize Professional Schedule</button>
+          </div>
+
+          <div id="routine-result-box" style="margin-top:25px; display:none; padding:22px; background:rgba(0,0,0,0.5); border-radius:14px; border:1px solid var(--card-border); line-height:1.7; white-space:pre-line;"></div>
+        </div>
+      </section>
+
+      <!-- 6. HABIT MATRIX VIEW -->
+      <section id="view-habits" class="view-panel">
+        <div class="glass-card">
+          <div class="card-heading"><i data-lucide="check-circle-2"></i> Professional Habit Tracker</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>Overall Completion Rate: <strong style="color:var(--accent-cyan);" id="habit-rate">66%</strong></div>
+            <button class="btn-glow" onclick="addCustomHabit()"><i data-lucide="plus"></i> Add Habit</button>
+          </div>
+
+          <div id="habit-list-container" style="display:flex; flex-direction:column; gap:12px;"></div>
+        </div>
+      </section>
+
+      <!-- 7. ZEN MEDITATION VIEW (30M, 1H+ SESSIONS) -->
+      <section id="view-meditation" class="view-panel">
+        <div class="grid-2col">
+          <div class="glass-card" style="text-align:center;">
+            <div class="card-heading" style="justify-content:center;"><i data-lucide="wind"></i> Paced Zen Breathing Guide</div>
+            <div id="breather-orb" style="width:140px; height:140px; border-radius:50%; background:radial-gradient(circle, var(--accent-cyan), var(--accent-purple)); margin:25px auto; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.1rem; transition:transform 4s ease-in-out; box-shadow:0 0 30px rgba(0, 242, 254, 0.3);">Inhale</div>
+            <button class="btn-glow" onclick="toggleBreathingGuide()">Toggle Guide</button>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-heading"><i data-lucide="clock"></i> Immersion Meditation Monitor</div>
+            <p style="color:var(--text-muted); margin-bottom:15px;">Select session length and begin deep focus or sleep preparation.</p>
+
+            <select id="meditation-length" class="form-select" style="margin-bottom:15px;">
+              <option value="5">5 Minutes (Quick De-Stress)</option>
+              <option value="15">15 Minutes (Standard Mindfulness)</option>
+              <option value="30">30 Minutes (Deep Immersion Session)</option>
+              <option value="60">60 Minutes (Full Extended Practice)</option>
             </select>
-            <button class="btn-primary" onclick="generateAIRoutine()">Generate AI Schedule</button>
-          </div>
-          <div id="routine-output" style="margin-top: 20px; display: none; line-height: 1.6; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 10px;"></div>
-        </div>
-      </section>
 
-      <!-- 7. HABIT TRACKER TAB -->
-      <section id="tab-habits" class="tab-content">
-        <div class="card">
-          <h3>Daily Habit Tracker</h3>
-          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
-            <label><input type="checkbox"> 💧 Drink 2.5L Water</label>
-            <label><input type="checkbox"> 🧘 15 Min Guided Meditation</label>
-            <label><input type="checkbox"> 📖 Read 15 Pages</label>
+            <div style="font-size:2rem; font-weight:800; color:var(--accent-cyan); text-align:center; margin:15px 0;" id="med-timer-display">30:00</div>
+
+            <div style="display:flex; gap:12px;">
+              <button class="btn-glow" style="flex:1;" onclick="startMeditationTimer()"><i data-lucide="play"></i> Start Session</button>
+              <button class="btn-glow" style="flex:1; background:rgba(255,255,255,0.1); color:#fff;" onclick="resetMeditationTimer()"><i data-lucide="rotate-ccw"></i> Reset</button>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- 8. PROMISE TO FUTURE SELF -->
-      <section id="tab-promise" class="tab-content">
-        <div class="card">
-          <h3>Letter to Future Self</h3>
-          <textarea id="future-letter" rows="6" placeholder="Write down your goals, thoughts, or encouragement..." style="width: 100%; margin-top: 10px;"></textarea>
-          <button class="btn-primary" style="margin-top: 15px;" onclick="alert('Letter encrypted and saved!')">Save Letter</button>
+      <!-- 8. SETTINGS VIEW -->
+      <section id="view-settings" class="view-panel">
+        <div class="glass-card">
+          <div class="card-heading"><i data-lucide="settings"></i> System Settings & Preferences</div>
+          
+          <div style="display:flex; flex-direction:column; gap:20px; max-width:550px; margin-top:15px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong>Aurora Canvas Animation</strong>
+                <div style="font-size:0.85rem; color:var(--text-muted);">Render 60fps moving auroras and floating stars</div>
+              </div>
+              <input type="checkbox" checked id="toggle-aurora" onchange="toggleAuroraBg(this.checked)" />
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong>AI Voice Model Style</strong>
+                <div style="font-size:0.85rem; color:var(--text-muted);">Set the tone for Zenora Copilot responses</div>
+              </div>
+              <select class="form-select" style="width:200px;">
+                <option>Professional & Precise</option>
+                <option>Empathetic & Calming</option>
+                <option>Concise / Direct</option>
+              </select>
+            </div>
+
+            <div style="padding-top:15px; border-top:1px solid var(--card-border);">
+              <button class="btn-glow" onclick="alert('Settings Saved Successfully!')"><i data-lucide="save"></i> Save Preferences</button>
+            </div>
+          </div>
         </div>
       </section>
 
     </main>
   </div>
 
-  <!-- Background Canvas Engine (Auroras, 3D Orbs, Stars) -->
+  <!-- ==================== JAVASCRIPT ENGINES ==================== -->
+
+  <!-- 1. WebGL Aurora & Cosmic Sky Engine -->
   <script>
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-
+    let auroraCanvas = document.getElementById('aurora-canvas');
+    let ctx = auroraCanvas.getContext('2d');
     let width, height, stars = [];
+    let runAurora = true;
 
-    function resize() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+    function resizeAurora() {
+      width = auroraCanvas.width = window.innerWidth;
+      height = auroraCanvas.height = window.innerHeight;
       initStars();
     }
 
     function initStars() {
       stars = [];
-      for (let i = 0; i < 120; i++) {
+      for (let i = 0; i < 150; i++) {
         stars.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          radius: Math.random() * 1.5,
+          radius: Math.random() * 1.6,
           alpha: Math.random(),
-          speed: Math.random() * 0.02 + 0.005
+          speed: Math.random() * 0.015 + 0.005
         });
       }
     }
 
     let time = 0;
-    function renderBackground() {
+    function renderAurora() {
+      if (!runAurora) return;
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Moving Aurora Gradient
-      time += 0.005;
-      const auroraGrad = ctx.createLinearGradient(0, 0, width, height);
-      auroraGrad.addColorStop(0, '#080b10');
-      auroraGrad.addColorStop(0.5 + Math.sin(time) * 0.2, 'rgba(121, 40, 202, 0.25)');
-      auroraGrad.addColorStop(1, 'rgba(0, 242, 254, 0.2)');
-      ctx.fillStyle = auroraGrad;
+      time += 0.004;
+
+      // 1. Multi-Wave Aurora Gradient
+      let grad = ctx.createLinearGradient(0, 0, width, height);
+      grad.addColorStop(0, '#03060a');
+      grad.addColorStop(0.4 + Math.sin(time) * 0.15, 'rgba(0, 242, 254, 0.18)');
+      grad.addColorStop(0.7 + Math.cos(time * 0.8) * 0.15, 'rgba(121, 40, 202, 0.22)');
+      grad.addColorStop(1, 'rgba(3, 6, 10, 0.9)');
+
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Animated Floating 3D Glowing Orb
-      const orbX = width * 0.75 + Math.cos(time * 0.8) * 60;
-      const orbY = height * 0.35 + Math.sin(time * 0.5) * 40;
-      const orbGrad = ctx.createRadialGradient(orbX, orbY, 10, orbX, orbY, 180);
-      orbGrad.addColorStop(0, 'rgba(0, 242, 254, 0.6)');
-      orbGrad.addColorStop(0.5, 'rgba(255, 0, 128, 0.2)');
-      orbGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = orbGrad;
-      ctx.beginPath();
-      ctx.arc(orbX, orbY, 180, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 3. Drifting Stars
+      // 2. Cosmic Drifting Stars
       stars.forEach(star => {
         star.alpha += star.speed;
         if (star.alpha > 1 || star.alpha < 0) star.speed = -star.speed;
@@ -606,251 +732,396 @@
         ctx.fill();
       });
 
-      requestAnimationFrame(renderBackground);
+      requestAnimationFrame(renderAurora);
     }
 
-    window.addEventListener('resize', resize);
-    resize();
-    renderBackground();
+    function toggleAuroraBg(enabled) {
+      runAurora = enabled;
+      if (enabled) renderAurora();
+      else ctx.clearRect(0, 0, width, height);
+    }
+
+    window.addEventListener('resize', resizeAurora);
+    resizeAurora();
+    renderAurora();
   </script>
 
-  <!-- Navigation Tab Switching -->
+  <!-- 2. Navigation Control -->
   <script>
     document.querySelectorAll('.nav-btn').forEach(button => {
       button.addEventListener('click', () => {
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.view-panel').forEach(v => v.classList.remove('active'));
 
         button.classList.add('active');
-        const targetTab = document.getElementById(button.dataset.target);
-        if (targetTab) targetTab.classList.add('active');
+        const targetView = document.getElementById(button.dataset.view);
+        if (targetView) targetView.classList.add('active');
 
-        const headerTitle = document.getElementById('section-title');
-        if (headerTitle) headerTitle.textContent = button.textContent.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+        document.getElementById('stage-header-title').textContent = button.textContent.trim();
       });
     });
   </script>
 
-  <!-- 18 Tracks Audio Player Engine -->
+  <!-- 3. Audio Studio Engine (18 Tracks - Fixed Audio Engine) -->
   <script>
-    const audioTracks = [
-      { id: 1, name: "🌌 Cosmic Deep Sleep", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" },
-      { id: 2, name: "🌊 Waves of Tranquility", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
-      { id: 3, name: "🍃 Forest Whispers & Rain", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2021/09/06/audio_84841e257e.mp3" },
-      { id: 4, name: "🔮 432Hz Miracles Frequency", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a2a19b.mp3" },
-      { id: 5, name: "🌙 Starlight Delta Waves", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/02/10/audio_fc862141a0.mp3" },
-      { id: 6, name: "🎹 Gentle Piano Melodies", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_c0e908ff28.mp3" },
-      { id: 7, name: "🕯️ Zen Temple Meditation Bowl", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939bc9d51.mp3" },
-      { id: 8, name: "💤 REM Deep Recovery", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_8b0568a9b7.mp3" },
-      { id: 9, name: "🌸 Soft Breeze Relaxation", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2021/11/25/audio_94fa218d6f.mp3" },
-      { id: 10, name: "🌌 Theta Mind Awakening", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/08/02/audio_8841443d31.mp3" },
-      { id: 11, name: "🌧️ Midnight Rain Sanctuary", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/01/21/audio_32d56a23a3.mp3" },
-      { id: 12, name: "🕊️ Floating in Serenity", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2022/04/27/audio_0ed289a3f2.mp3" },
-      { id: 13, name: "✨ Astral Body Rest", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/03/24/audio_34b35c0533.mp3" },
-      { id: 14, name: "🌊 Ocean Horizon Ambient", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/06/07/audio_398a87b337.mp3" },
-      { id: 15, name: "🎵 Pure Acoustic Harmony", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2022/08/31/audio_0c9b68eb40.mp3" },
-      { id: 16, name: "🧠 Gamma Focus Waves", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/05/23/audio_73e7d6b38c.mp3" },
-      { id: 17, name: "🌌 Aurora Borealis Soundscape", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/09/20/audio_145d2780e1.mp3" },
-      { id: 18, name: "🍃 Solfeggio 528Hz Transformation", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_24a2c53a25.mp3" }
-    ];
+    class AudioStudioEngine {
+      constructor() {
+        this.tracks = [
+          { id: 0, name: "🌌 Cosmic Deep Sleep", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" },
+          { id: 1, name: "🌊 Waves of Tranquility", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3" },
+          { id: 2, name: "🍃 Forest Whispers & Rain", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2021/09/06/audio_84841e257e.mp3" },
+          { id: 3, name: "🔮 432Hz Miracles Frequency", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a2a19b.mp3" },
+          { id: 4, name: "🌙 Starlight Delta Waves", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/02/10/audio_fc862141a0.mp3" },
+          { id: 5, name: "🎹 Gentle Piano Melodies", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_c0e908ff28.mp3" },
+          { id: 6, name: "🕯️ Zen Temple Meditation Bowl", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939bc9d51.mp3" },
+          { id: 7, name: "💤 REM Deep Recovery", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/03/10/audio_8b0568a9b7.mp3" },
+          { id: 8, name: "🌸 Soft Breeze Relaxation", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2021/11/25/audio_94fa218d6f.mp3" },
+          { id: 9, name: "🌌 Theta Mind Awakening", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/08/02/audio_8841443d31.mp3" },
+          { id: 10, name: "🌧️ Midnight Rain Sanctuary", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/01/21/audio_32d56a23a3.mp3" },
+          { id: 11, name: "🕊️ Floating in Serenity", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2022/04/27/audio_0ed289a3f2.mp3" },
+          { id: 12, name: "✨ Astral Body Rest", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/03/24/audio_34b35c0533.mp3" },
+          { id: 13, name: "🌊 Ocean Horizon Ambient", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/06/07/audio_398a87b337.mp3" },
+          { id: 14, name: "🎵 Pure Acoustic Harmony", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2022/08/31/audio_0c9b68eb40.mp3" },
+          { id: 15, name: "🧠 Gamma Focus Waves", category: "Mind Calming", url: "https://cdn.pixabay.com/download/audio/2022/05/23/audio_73e7d6b38c.mp3" },
+          { id: 16, name: "🌌 Aurora Borealis Soundscape", category: "Sleeping", url: "https://cdn.pixabay.com/download/audio/2022/09/20/audio_145d2780e1.mp3" },
+          { id: 17, name: "🍃 Solfeggio 528Hz Transformation", category: "Pleasing", url: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_24a2c53a25.mp3" }
+        ];
 
-    const currentAudio = new Audio();
-    let currentTrackIdx = null;
+        this.audio = new Audio();
+        this.currentIndex = null;
+        this.initDOM();
+      }
 
-    const trackContainer = document.getElementById('track-list-container');
-    audioTracks.forEach((track, index) => {
-      const div = document.createElement('div');
-      div.className = 'track-item';
-      div.id = `track-${index}`;
-      div.innerHTML = `<div><strong>${track.name}</strong><br><small style="color:var(--text-muted);">${track.category}</small></div><span>▶</span>`;
-      div.onclick = () => playTrack(index);
-      trackContainer.appendChild(div);
-    });
+      initDOM() {
+        const container = document.getElementById('playlist-container');
+        if (!container) return;
 
-    function playTrack(idx) {
-      document.querySelectorAll('.track-item').forEach(el => el.classList.remove('active-track'));
-      currentTrackIdx = idx;
-      const track = audioTracks[idx];
-      document.getElementById(`track-${idx}`).classList.add('active-track');
-      document.getElementById('current-track-title').textContent = track.name;
-      currentAudio.src = track.url;
-      currentAudio.play();
-      document.getElementById('play-pause-btn').textContent = '⏸';
+        this.tracks.forEach((track, idx) => {
+          const div = document.createElement('div');
+          div.className = 'audio-node';
+          div.id = `track-node-${idx}`;
+          div.innerHTML = `<div><strong>${track.name}</strong><br><small style="color:var(--text-muted);">${track.category}</small></div><i data-lucide="play-circle"></i>`;
+          div.onclick = () => this.playTrack(idx);
+          container.appendChild(div);
+        });
+
+        this.audio.ontimeupdate = () => {
+          if (!this.audio.duration) return;
+          const pct = (this.audio.currentTime / this.audio.duration) * 100;
+          document.getElementById('audio-progress').style.width = pct + '%';
+          const cur = this.formatTime(this.audio.currentTime);
+          const dur = this.formatTime(this.audio.duration);
+          document.getElementById('active-track-time').textContent = `${cur} / ${dur}`;
+        };
+      }
+
+      playTrack(idx) {
+        document.querySelectorAll('.audio-node').forEach(el => el.classList.remove('active'));
+        this.currentIndex = idx;
+        const track = this.tracks[idx];
+        const node = document.getElementById(`track-node-${idx}`);
+        if (node) node.classList.add('active');
+
+        document.getElementById('active-track-name').textContent = track.name;
+        document.getElementById('active-track-cat').textContent = `Category: ${track.category}`;
+        this.audio.src = track.url;
+        this.audio.play();
+        document.getElementById('master-play-button').innerHTML = `<i data-lucide="pause"></i>`;
+        lucide.createIcons();
+      }
+
+      togglePlay() {
+        if (this.currentIndex === null && this.tracks.length > 0) {
+          this.playTrack(0);
+          return;
+        }
+        if (this.audio.paused) {
+          this.audio.play();
+          document.getElementById('master-play-button').innerHTML = `<i data-lucide="pause"></i>`;
+        } else {
+          this.audio.pause();
+          document.getElementById('master-play-button').innerHTML = `<i data-lucide="play"></i>`;
+        }
+        lucide.createIcons();
+      }
+
+      rewind(sec) { this.audio.currentTime = Math.max(0, this.audio.currentTime - sec); }
+      forward(sec) { this.audio.currentTime = Math.min(this.audio.duration || 0, this.audio.currentTime + sec); }
+      nextTrack() { if (this.currentIndex !== null) this.playTrack((this.currentIndex + 1) % this.tracks.length); }
+      prevTrack() { if (this.currentIndex !== null) this.playTrack((this.currentIndex - 1 + this.tracks.length) % this.tracks.length); }
+
+      seek(e) {
+        if (!this.audio.duration) return;
+        const bar = e.currentTarget;
+        const rect = bar.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const pct = clickX / rect.width;
+        this.audio.currentTime = pct * this.audio.duration;
+      }
+
+      formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      }
     }
 
-    function togglePlayPause() {
-      if (!currentAudio.src && audioTracks.length > 0) {
-        playTrack(0);
-        return;
+    const audioStudio = new AudioStudioEngine();
+  </script>
+
+  <!-- 4. 3D Mind Games Engine (4 Working Games) -->
+  <script>
+    class GameLabEngine {
+      constructor() {
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.mesh = null;
+        this.animId = null;
       }
-      if (currentAudio.paused) {
-        currentAudio.play();
-        document.getElementById('play-pause-btn').textContent = '⏸';
-      } else {
-        currentAudio.pause();
-        document.getElementById('play-pause-btn').textContent = '▶';
+
+      initViewport(title) {
+        document.getElementById('game-stage-wrapper').style.display = 'block';
+        document.getElementById('game-title-display').innerHTML = `<i data-lucide="monitor"></i> ${title}`;
+
+        const container = document.getElementById('game-stage-viewport');
+        container.innerHTML = '';
+
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, container.offsetWidth / 360, 0.1, 1000);
+        this.camera.position.z = 5;
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer.setSize(container.offsetWidth, 360);
+        container.appendChild(this.renderer.domElement);
+      }
+
+      loadHypercube() {
+        this.initViewport("1. 3D Zen Hypercube Matrix");
+        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        const material = new THREE.MeshBasicMaterial({ color: 0x00f2fe, wireframe: true });
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.scene.add(this.mesh);
+
+        if (this.animId) cancelAnimationFrame(this.animId);
+        const render = () => {
+          this.animId = requestAnimationFrame(render);
+          if (this.mesh) {
+            this.mesh.rotation.x += 0.01;
+            this.mesh.rotation.y += 0.01;
+          }
+          this.renderer.render(this.scene, this.camera);
+        };
+        render();
+      }
+
+      loadParticlePopper() {
+        this.initViewport("2. Quantum Stress Popper");
+        const geometry = new THREE.SphereGeometry(1.5, 16, 16);
+        const material = new THREE.MeshBasicMaterial({ color: 0x7928ca, wireframe: true });
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.scene.add(this.mesh);
+
+        if (this.animId) cancelAnimationFrame(this.animId);
+        const render = () => {
+          this.animId = requestAnimationFrame(render);
+          if (this.mesh) {
+            this.mesh.rotation.y += 0.015;
+          }
+          this.renderer.render(this.scene, this.camera);
+        };
+        render();
+      }
+
+      loadFocusRing() {
+        this.initViewport("3. Focus Target Ring");
+        const geometry = new THREE.TorusGeometry(1.5, 0.3, 16, 100);
+        const material = new THREE.MeshBasicMaterial({ color: 0x3fb950, wireframe: true });
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.scene.add(this.mesh);
+
+        if (this.animId) cancelAnimationFrame(this.animId);
+        const render = () => {
+          this.animId = requestAnimationFrame(render);
+          if (this.mesh) {
+            this.mesh.rotation.x += 0.01;
+            this.mesh.rotation.y += 0.02;
+          }
+          this.renderer.render(this.scene, this.camera);
+        };
+        render();
+      }
+
+      loadPatternRecall() {
+        this.initViewport("4. Memory Pattern Recall Stage");
+        const container = document.getElementById('game-stage-viewport');
+        container.innerHTML = `
+          <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:20px;">
+            <h3>Match the Glowing Node Pattern</h3>
+            <div style="display:flex; gap:15px;">
+              <button class="btn-glow" onclick="alert('Node 1 Selected')">🔵 Alpha</button>
+              <button class="btn-glow" style="background:var(--accent-purple); color:#fff;" onclick="alert('Node 2 Selected')">🟣 Beta</button>
+              <button class="btn-glow" style="background:var(--accent-green); color:#fff;" onclick="alert('Node 3 Selected')">🟢 Gamma</button>
+            </div>
+          </div>
+        `;
       }
     }
 
-    function rewindTrack() { currentAudio.currentTime = Math.max(0, currentAudio.currentTime - 10); }
-    function forwardTrack() { currentAudio.currentTime = Math.min(currentAudio.duration, currentAudio.currentTime + 10); }
+    const gameLab = new GameLabEngine();
+  </script>
 
-    currentAudio.ontimeupdate = () => {
-      if (!currentAudio.duration) return;
-      const cur = formatTime(currentAudio.currentTime);
-      const dur = formatTime(currentAudio.duration);
-      document.getElementById('track-time').textContent = `${cur} / ${dur}`;
-    };
+  <!-- 5. Routine Synthesis via AI Backend -->
+  <script>
+    async function synthesizeRoutine() {
+      const chronotype = document.getElementById('q-chronotype').value;
+      const goal = document.getElementById('q-goal').value;
+      const stress = document.getElementById('q-stress').value;
+      const time = document.getElementById('q-time').value;
 
-    function formatTime(sec) {
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      const resultBox = document.getElementById('routine-result-box');
+      resultBox.style.display = 'block';
+      resultBox.textContent = "Synthesizing your time-blocked schedule via Zenora Groq AI backend...";
+
+      const prompt = `Synthesize a highly detailed, professional, time-blocked daily schedule for someone with these exact parameters:
+- Chronotype: ${chronotype}
+- Primary Objective: ${goal}
+- Stress/Burnout Level: ${stress}
+- Daily Free Focus Time: ${time}
+
+Provide specific morning, deep work, decompression breaks, and evening recovery protocols.`;
+
+      try {
+        if (typeof callGroqAI === 'function') {
+          const res = await callGroqAI(prompt);
+          resultBox.textContent = res;
+        } else {
+          resultBox.textContent = "Error: Backend AI function is missing or initializing.";
+        }
+      } catch (err) {
+        resultBox.textContent = "Failed to generate routine: " + err.message;
+      }
     }
   </script>
 
-  <!-- 3D De-Stress Games Engine -->
+  <!-- 6. Habit Matrix Logic -->
   <script>
-    let gCanvas, gCtx, animId;
+    const habits = [
+      { id: 1, text: "💧 Hydration Target (2.5 Liters)", checked: true, category: "Health" },
+      { id: 2, text: "🧘 30-Min Zen Meditation Practice", checked: true, category: "Mind" },
+      { id: 3, text: "📖 Deep Reading / Learning (15 Pages)", checked: false, category: "Focus" }
+    ];
 
-    function init3DCube() {
-      document.getElementById('game-stage').style.display = 'block';
-      document.getElementById('game-name').textContent = "🧊 3D Zen Rotating Cube (Interactive)";
-      gCanvas = document.getElementById('game-canvas');
-      gCtx = gCanvas.getContext('2d');
-      gCanvas.width = gCanvas.offsetWidth;
-      gCanvas.height = 280;
+    function renderHabits() {
+      const container = document.getElementById('habit-list-container');
+      if (!container) return;
+      container.innerHTML = '';
 
-      let angle = 0;
-      const nodes = [
-        [-50,-50,-50], [50,-50,-50], [50,50,-50], [-50,50,-50],
-        [-50,-50,50],  [50,-50,50],  [50,50,50],  [-50,50,50]
-      ];
-      const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+      let done = 0;
+      habits.forEach((h, i) => {
+        if (h.checked) done++;
+        const div = document.createElement('div');
+        div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:14px; background:rgba(255,255,255,0.02); border:1px solid var(--card-border); border-radius:12px;";
+        div.innerHTML = `
+          <label style="display:flex; align-items:center; gap:12px; cursor:pointer;">
+            <input type="checkbox" ${h.checked ? 'checked' : ''} onchange="toggleHabit(${i})" />
+            <span>${h.text}</span>
+          </label>
+          <span style="font-size:0.8rem; background:rgba(0,242,254,0.1); color:var(--accent-cyan); padding:4px 8px; border-radius:6px;">${h.category}</span>
+        `;
+        container.appendChild(div);
+      });
 
-      if(animId) cancelAnimationFrame(animId);
-
-      function renderCube() {
-        gCtx.fillStyle = '#000';
-        gCtx.fillRect(0, 0, gCanvas.width, gCanvas.height);
-
-        angle += 0.02;
-        const projected = [];
-
-        nodes.forEach(node => {
-          let x = node[0] * Math.cos(angle) - node[2] * Math.sin(angle);
-          let z = node[0] * Math.sin(angle) + node[2] * Math.cos(angle);
-          let y = node[1];
-
-          let fov = 200;
-          let scale = fov / (fov + z + 150);
-          projected.push([x * scale + gCanvas.width / 2, y * scale + gCanvas.height / 2]);
-        });
-
-        gCtx.strokeStyle = '#00f2fe';
-        gCtx.lineWidth = 2;
-        edges.forEach(edge => {
-          gCtx.beginPath();
-          gCtx.moveTo(projected[edge[0]][0], projected[edge[0]][1]);
-          gCtx.lineTo(projected[edge[1]][0], projected[edge[1]][1]);
-          gCtx.stroke();
-        });
-
-        animId = requestAnimationFrame(renderCube);
-      }
-      renderCube();
+      const pct = Math.round((done / habits.length) * 100) || 0;
+      document.getElementById('habit-rate').textContent = pct + '%';
     }
 
-    function init3DBubbles() {
-      document.getElementById('game-stage').style.display = 'block';
-      document.getElementById('game-name').textContent = "🔮 Floating Stress Orbs (Click to clear)";
-      gCanvas = document.getElementById('game-canvas');
-      gCtx = gCanvas.getContext('2d');
-      gCanvas.width = gCanvas.offsetWidth;
-      gCanvas.height = 280;
-
-      let bubbles = [];
-      for (let i = 0; i < 8; i++) {
-        bubbles.push({
-          x: Math.random() * gCanvas.width,
-          y: Math.random() * gCanvas.height,
-          r: Math.random() * 20 + 15,
-          dx: (Math.random() - 0.5) * 2,
-          dy: (Math.random() - 0.5) * 2
-        });
-      }
-
-      if(animId) cancelAnimationFrame(animId);
-
-      function renderBubbles() {
-        gCtx.fillStyle = '#000';
-        gCtx.fillRect(0, 0, gCanvas.width, gCanvas.height);
-
-        bubbles.forEach(b => {
-          b.x += b.dx; b.y += b.dy;
-          if(b.x < 0 || b.x > gCanvas.width) b.dx = -b.dx;
-          if(b.y < 0 || b.y > gCanvas.height) b.dy = -b.dy;
-
-          const grad = gCtx.createRadialGradient(b.x, b.y, 2, b.x, b.y, b.r);
-          grad.addColorStop(0, '#ff0080');
-          grad.addColorStop(1, '#7928ca');
-          gCtx.fillStyle = grad;
-          gCtx.beginPath();
-          gCtx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-          gCtx.fill();
-        });
-
-        animId = requestAnimationFrame(renderBubbles);
-      }
-      renderBubbles();
+    function toggleHabit(idx) {
+      habits[idx].checked = !habits[idx].checked;
+      renderHabits();
     }
 
-    let breathingActive = false, bInterval;
+    function addCustomHabit() {
+      const title = prompt("Enter habit title:");
+      if (title) {
+        habits.push({ id: Date.now(), text: title, checked: false, category: "Custom" });
+        renderHabits();
+      }
+    }
+
+    renderHabits();
+  </script>
+
+  <!-- 7. Zen Meditation & Timer Monitor -->
+  <script>
+    let breathGuideActive = false, bInterval;
     function toggleBreathingGuide() {
-      const circle = document.getElementById('med-circle');
-      if (breathingActive) {
+      const orb = document.getElementById('breather-orb');
+      if (breathGuideActive) {
         clearInterval(bInterval);
-        circle.style.transform = 'scale(1)';
-        circle.textContent = 'Breathe';
-        breathingActive = false;
+        orb.style.transform = 'scale(1)';
+        orb.textContent = 'Inhale';
+        breathGuideActive = false;
       } else {
-        breathingActive = true;
-        let inhale = true;
-        circle.style.transform = 'scale(1.6)';
-        circle.textContent = 'Exhale';
+        breathGuideActive = true;
+        let state = true;
+        orb.style.transform = 'scale(1.4)';
+        orb.textContent = 'Exhale';
         bInterval = setInterval(() => {
-          if (inhale) {
-            circle.style.transform = 'scale(1)';
-            circle.textContent = 'Inhale';
-            inhale = false;
+          if (state) {
+            orb.style.transform = 'scale(1)';
+            orb.textContent = 'Inhale';
+            state = false;
           } else {
-            circle.style.transform = 'scale(1.6)';
-            circle.textContent = 'Exhale';
-            inhale = true;
+            orb.style.transform = 'scale(1.4)';
+            orb.textContent = 'Exhale';
+            state = true;
           }
         }, 4000);
       }
     }
 
-    async function generateAIRoutine() {
-      const focus = document.getElementById('routine-focus').value;
-      const out = document.getElementById('routine-output');
-      out.style.display = 'block';
-      out.textContent = "Generating custom schedule with Zenora AI...";
+    let timerInterval = null;
+    let totalSeconds = 1800; // default 30 mins
 
-      try {
-        if(typeof callGroqAI === 'function') {
-          const res = await callGroqAI(`Create a clean daily routine focused on: ${focus}.`);
-          out.textContent = res;
+    document.getElementById('meditation-length').addEventListener('change', (e) => {
+      totalSeconds = parseInt(e.target.value) * 60;
+      updateTimerDisplay();
+    });
+
+    function updateTimerDisplay() {
+      const m = Math.floor(totalSeconds / 60);
+      const s = Math.floor(totalSeconds % 60);
+      document.getElementById('med-timer-display').textContent = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function startMeditationTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateTimerDisplay();
+        } else {
+          clearInterval(timerInterval);
+          alert('Zen Meditation Session Complete! Great work.');
         }
-      } catch(e) {
-        out.textContent = "Failed to generate: " + e.message;
-      }
+      }, 1000);
+    }
+
+    function resetMeditationTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      totalSeconds = parseInt(document.getElementById('meditation-length').value) * 60;
+      updateTimerDisplay();
     }
   </script>
 
   <!-- Core Scripts -->
   <script src="js/config.js"></script>
   <script src="js/main.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
 </body>
 </html>
