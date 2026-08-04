@@ -11,19 +11,32 @@ async function checkAuthSession(redirectOnFail = true) {
 
 // Updated callGroqAI function that routes through Vercel's secure backend
 async function callGroqAI(promptText) {
-  const response = await fetch('/api/chat', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      prompt: promptText
-    })
-  });
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: promptText
+      })
+    });
 
-  if (!response.ok) throw new Error('Groq AI Request Failed');
-  const data = await response.json();
-  return data.choices[0].message.content;
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Groq AI Request Failed');
+    }
+
+    if (data.choices && data.choices[0]?.message?.content) {
+      return data.choices[0].message.content;
+    } else {
+      throw new Error('Invalid response structure from AI.');
+    }
+  } catch (error) {
+    console.error('AI Error:', error);
+    throw error;
+  }
 }
 
 function handleLogout() {
