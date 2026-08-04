@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zenora AI - Dashboard</title>
-  
+
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <style>
     :root {
       --bg-color: #0d1117;
@@ -18,6 +18,7 @@
       --primary: #58a6ff;
       --primary-hover: #1f6feb;
       --user-msg: #238636;
+      --accent-purple: #8a2be2;
     }
 
     * {
@@ -35,9 +36,9 @@
       overflow: hidden;
     }
 
-    /* Sidebar Layout */
+    /* Sidebar Navigation */
     .sidebar {
-      width: 250px;
+      width: 270px;
       background-color: var(--card-bg);
       border-right: 1px solid var(--border-color);
       display: flex;
@@ -50,7 +51,7 @@
       font-size: 1.4rem;
       font-weight: bold;
       color: var(--primary);
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
 
     .nav-links {
@@ -58,20 +59,26 @@
     }
 
     .nav-links li {
-      margin-bottom: 15px;
+      margin-bottom: 6px;
     }
 
-    .nav-links a {
+    .nav-links button {
+      width: 100%;
+      background: transparent;
+      border: none;
       color: var(--text-main);
-      text-decoration: none;
-      font-size: 1rem;
-      display: block;
-      padding: 10px;
-      border-radius: 6px;
-      transition: background 0.2s;
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 0.92rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s, color 0.2s;
     }
 
-    .nav-links a.active, .nav-links a:hover {
+    .nav-links button.active, .nav-links button:hover {
       background-color: #21262d;
       color: var(--primary);
     }
@@ -80,8 +87,8 @@
       background: #da3633;
       color: #fff;
       border: none;
-      padding: 10px;
-      border-radius: 6px;
+      padding: 12px;
+      border-radius: 8px;
       cursor: pointer;
       width: 100%;
       font-weight: bold;
@@ -93,10 +100,11 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      overflow: hidden;
     }
 
     header {
-      padding: 15px 25px;
+      padding: 18px 25px;
       border-bottom: 1px solid var(--border-color);
       background-color: var(--card-bg);
       display: flex;
@@ -104,13 +112,64 @@
       align-items: center;
     }
 
-    /* Chat Container */
+    header h2 {
+      font-size: 1.2rem;
+    }
+
+    /* Tab Panels */
+    .tab-content {
+      display: none;
+      flex: 1;
+      padding: 25px;
+      overflow-y: auto;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cards & Form Controls */
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* 1. AI Chatbot Tab */
     .chat-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 20px;
-      overflow: hidden;
+      height: 100%;
     }
 
     .chat-messages {
@@ -153,12 +212,11 @@
     }
 
     .message.error {
-      align-self: flex-center;
+      align-self: center;
       background-color: #5a1d1d;
       color: #ff9999;
     }
 
-    /* Input Area */
     .chat-input-area {
       display: flex;
       gap: 10px;
@@ -167,7 +225,7 @@
       border-top: 1px solid var(--border-color);
     }
 
-    .chat-input-area input {
+    .chat-input-area input, textarea, select {
       flex: 1;
       background-color: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -178,65 +236,344 @@
       outline: none;
     }
 
-    .chat-input-area input:focus {
+    .chat-input-area input:focus, textarea:focus, select:focus {
       border-color: var(--primary);
     }
 
-    .chat-input-area button {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
+    /* 2. Habit Tracker */
+    .habit-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
     }
 
-    .chat-input-area button:hover {
-      background-color: var(--primary-hover);
+    /* 3. Mind Relief Games */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .game-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .game-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* 4. Personalized Routine Suggestions */
+    .routine-form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      max-width: 600px;
+    }
+
+    .routine-output {
+      margin-top: 20px;
+      padding: 15px;
+      background: #21262d;
+      border-radius: 8px;
+      display: none;
+      white-space: pre-line;
+      line-height: 1.6;
+    }
+
+    /* 5. Meditation Sessions */
+    .meditation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .meditation-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .meditation-card:hover {
+      border-color: var(--primary);
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
+  <!-- Sidebar Navigation -->
   <aside class="sidebar">
     <div>
       <div class="brand">Zenora AI</div>
       <ul class="nav-links">
-        <li><a href="#" class="active">Chat Assistant</a></li>
+        <li><button class="nav-btn active" data-target="tab-dashboard">📊 Overview</button></li>
+        <li><button class="nav-btn" data-target="tab-chat">🤖 AI Chatbot</button></li>
+        <li><button class="nav-btn" data-target="tab-routine">✨ Personal Routine</button></li>
+        <li><button class="nav-btn" data-target="tab-games">🎮 Mind Relief Games</button></li>
+        <li><button class="nav-btn" data-target="tab-habits">✅ Habit Tracker</button></li>
+        <li><button class="nav-btn" data-target="tab-promise">💌 Promise to Future Self</button></li>
+        <li><button class="nav-btn" data-target="tab-meditation">🧘 Meditation Sessions</button></li>
+        <li><button class="nav-btn" data-target="tab-music">🎵 Music Player</button></li>
       </ul>
     </div>
     <button class="logout-btn" onclick="handleLogout()">Log Out</button>
   </aside>
 
-  <!-- Main View -->
+  <!-- Main View Area -->
   <main class="main-content">
     <header>
-      <h2>AI Workspace</h2>
+      <h2 id="section-title">Overview</h2>
     </header>
 
-    <!-- Chat Interface -->
-    <div class="chat-container">
-      <div id="chat-messages" class="chat-messages">
-        <div class="message ai">Hello! I am Zenora AI. How can I help you today?</div>
+    <!-- 1. OVERVIEW TAB -->
+    <section id="tab-dashboard" class="tab-content active">
+      <div class="grid-2x2">
+        <div class="card">
+          <h3>Welcome Back!</h3>
+          <p style="color: var(--text-muted);">Select any feature from the sidebar menu to get started.</p>
+        </div>
+        <div class="card">
+          <h3>AI Engine</h3>
+          <p style="color: #3fb950;">Groq Llama-3 Active</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. AI CHATBOT TAB -->
+    <section id="tab-chat" class="tab-content">
+      <div class="chat-container">
+        <div id="chat-messages" class="chat-messages">
+          <div class="message ai">Hello! I am Zenora AI. How can I assist you today?</div>
+        </div>
+
+        <form id="chat-form" class="chat-input-area">
+          <input 
+            type="text" 
+            id="chat-input" 
+            placeholder="Ask Zenora anything..." 
+            required 
+            autocomplete="off" 
+          />
+          <button type="submit" id="send-btn" class="btn-primary">Send</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. PERSONALIZED ROUTINE SUGGESTION TAB -->
+    <section id="tab-routine" class="tab-content">
+      <div class="card">
+        <h3>Personalized Routine Generator</h3>
+        <p style="color: var(--text-muted); margin-bottom: 15px;">Tell Zenora your goal, and receive a customized daily routine.</p>
+        
+        <div class="routine-form">
+          <label>Primary Focus / Goal:</label>
+          <select id="routine-goal">
+            <option value="Productivity & Work">Productivity & Work</option>
+            <option value="Stress Reduction & Mindfulness">Stress Reduction & Mindfulness</option>
+            <option value="Fat Loss & Healthy Habits">Fat Loss & Healthy Habits</option>
+            <option value="Better Sleep & Recovery">Better Sleep & Recovery</option>
+          </select>
+
+          <label>Daily Schedule Style:</label>
+          <select id="routine-style">
+            <option value="Morning Bird (Early Start)">Morning Bird (Early Start)</option>
+            <option value="Balanced Daytime Schedule">Balanced Daytime Schedule</option>
+            <option value="Night Owl">Night Owl</option>
+          </select>
+
+          <button class="btn-primary" onclick="generateRoutine()">Generate Routine</button>
+        </div>
+
+        <div id="routine-result" class="routine-output"></div>
+      </div>
+    </section>
+
+    <!-- 4. MIND RELIEF GAMES TAB -->
+    <section id="tab-games" class="tab-content">
+      <h3 style="margin-bottom: 15px;">Mind Relief & De-stressing Games</h3>
+      <div class="games-grid">
+        
+        <div class="game-card" onclick="startBreathingGame()">
+          <h4>🫁 Bubble Breathing</h4>
+          <p style="color: var(--text-muted); margin-top: 8px;">Follow visual rhythm to regulate your breathing.</p>
+        </div>
+
+        <div class="game-card" onclick="startClickerGame()">
+          <h4>🎯 Stress Popper</h4>
+          <p style="color: var(--text-muted); margin-top: 8px;">Click bubbles to clear tension and unwind.</p>
+        </div>
+
       </div>
 
-      <form id="chat-form" class="chat-input-area">
-        <input 
-          type="text" 
-          id="chat-input" 
-          placeholder="Ask Zenora anything..." 
-          required 
-          autocomplete="off" 
-        />
-        <button type="submit" id="send-btn">Send</button>
-      </form>
-    </div>
+      <div id="game-sandbox" class="card" style="margin-top: 25px; display: none; text-align: center;">
+        <h4 id="game-title">Game Title</h4>
+        <div id="game-area" style="min-height: 200px; display: flex; align-items: center; justify-content: center; margin-top: 15px;"></div>
+      </div>
+    </section>
+
+    <!-- 5. HABIT TRACKER TAB -->
+    <section id="tab-habits" class="tab-content">
+      <div class="card">
+        <h3>Daily Habit Tracker</h3>
+        <p style="color: var(--text-muted); margin-bottom: 15px;">Track your consistency every day.</p>
+        
+        <div class="habit-item">
+          <span>💧 Drink 2L Water</span>
+          <input type="checkbox" />
+        </div>
+        <div class="habit-item">
+          <span>🧘 10 Min Meditation</span>
+          <input type="checkbox" />
+        </div>
+        <div class="habit-item">
+          <span>📖 Read 10 Pages</span>
+          <input type="checkbox" />
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. PROMISE TO FUTURE SELF TAB -->
+    <section id="tab-promise" class="tab-content">
+      <div class="card">
+        <h3>Letter to Future Self</h3>
+        <p style="color: var(--text-muted); margin-bottom: 15px;">Write a message to your future self and save it.</p>
+        
+        <textarea id="promise-text" rows="5" placeholder="Dear future me..."></textarea>
+        <br><br>
+        <button class="btn-primary" onclick="alert('Promise saved!')">Save Promise</button>
+      </div>
+    </section>
+
+    <!-- 7. MEDITATION SESSIONS TAB -->
+    <section id="tab-meditation" class="tab-content">
+      <h3 style="margin-bottom: 15px;">Guided Meditation</h3>
+      <div class="meditation-grid">
+        <div class="meditation-card">
+          <h4>5-Min Calm</h4>
+          <p style="color: var(--text-muted);">Quick Stress Relief</p>
+        </div>
+        <div class="meditation-card">
+          <h4>10-Min Focus</h4>
+          <p style="color: var(--text-muted);">Deep Work Prep</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. MUSIC PLAYER TAB -->
+    <section id="tab-music" class="tab-content">
+      <div class="card" style="text-align: center;">
+        <h3>Zenora Music Player</h3>
+        <p style="color: var(--text-muted); margin-top: 10px;">Relaxing background music and ambient sounds.</p>
+        <div style="margin-top: 20px;">
+          <button class="btn-primary" onclick="alert('Playing ambient tracks...')">▶ Play</button>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- Scripts -->
+  <!-- Navigation Tab Switcher Script -->
+  <script>
+    document.querySelectorAll('.nav-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+        button.classList.add('active');
+        const targetTab = document.getElementById(button.dataset.target);
+        if (targetTab) {
+          targetTab.classList.add('active');
+        }
+
+        const headerTitle = document.getElementById('section-title');
+        if (headerTitle) {
+          headerTitle.textContent = button.textContent.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+        }
+      });
+    });
+
+    // Routine Generator via Groq AI
+    async function generateRoutine() {
+      const goal = document.getElementById('routine-goal').value;
+      const style = document.getElementById('routine-style').value;
+      const outputDiv = document.getElementById('routine-result');
+
+      outputDiv.style.display = 'block';
+      outputDiv.textContent = "Generating your personalized routine with Zenora AI...";
+
+      const prompt = `Create a structured daily routine tailored for someone focused on: "${goal}" with a preferred schedule of: "${style}". Provide clear morning, afternoon, and evening action items.`;
+
+      try {
+        if (typeof callGroqAI === 'function') {
+          const result = await callGroqAI(prompt);
+          outputDiv.textContent = result;
+        } else {
+          outputDiv.textContent = "Error: callGroqAI function is not loaded.";
+        }
+      } catch (err) {
+        outputDiv.textContent = "Failed to generate routine: " + err.message;
+      }
+    }
+
+    // Mind Relief Games Logic
+    function startBreathingGame() {
+      const sandbox = document.getElementById('game-sandbox');
+      const title = document.getElementById('game-title');
+      const area = document.getElementById('game-area');
+
+      sandbox.style.display = 'block';
+      title.textContent = "🫁 Visual Bubble Breathing";
+      area.innerHTML = `
+        <div id="breath-circle" style="width: 80px; height: 80px; background: #58a6ff; border-radius: 50%; transition: all 4s ease-in-out; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">Inhale</div>
+      `;
+
+      let inhale = true;
+      setInterval(() => {
+        const circle = document.getElementById('breath-circle');
+        if (!circle) return;
+        if (inhale) {
+          circle.style.transform = 'scale(2.2)';
+          circle.textContent = 'Exhale';
+          inhale = false;
+        } else {
+          circle.style.transform = 'scale(1)';
+          circle.textContent = 'Inhale';
+          inhale = true;
+        }
+      }, 4000);
+    }
+
+    function startClickerGame() {
+      const sandbox = document.getElementById('game-sandbox');
+      const title = document.getElementById('game-title');
+      const area = document.getElementById('game-area');
+
+      sandbox.style.display = 'block';
+      title.textContent = "🎯 Stress Popper (Click to pop!)";
+      area.innerHTML = `
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+          <button class="btn-primary" onclick="this.style.visibility='hidden'">💥 Pop</button>
+          <button class="btn-primary" onclick="this.style.visibility='hidden'">💥 Pop</button>
+          <button class="btn-primary" onclick="this.style.visibility='hidden'">💥 Pop</button>
+          <button class="btn-primary" onclick="this.style.visibility='hidden'">💥 Pop</button>
+          <button class="btn-primary" onclick="this.style.visibility='hidden'">💥 Pop</button>
+        </div>
+      `;
+    }
+  </script>
+
+  <!-- Core Scripts -->
   <script src="js/config.js"></script>
   <script src="js/main.js"></script>
 </body>
