@@ -1,38 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zenora AI — Settings & Help</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#060712">
+  <title>Settings · Zenora AI</title>
   <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
-<body style="padding: 40px 20px;">
-
-  <div style="max-width: 720px; margin: 0 auto;" class="glass-card p-8">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px;">
-      <h2 class="text-gradient" style="font-size: 1.8rem; font-weight: 800;">Settings & Support</h2>
-      <a href="dashboard.html" style="color: var(--cyan-accent); text-decoration: none; font-size: 0.9rem;">← Dashboard</a>
+<body>
+  <main class="settings-shell">
+    <header class="topbar">
+      <a class="brand" href="dashboard.html" aria-label="Zenora dashboard"><span class="brand-mark">Z</span> Zenora AI</a>
+      <a class="btn-quiet" href="dashboard.html">← Back to dashboard</a>
+    </header>
+    <div class="settings-layout">
+      <nav class="settings-nav glass-card" aria-label="Settings sections">
+        <button type="button" aria-selected="true" data-panel="profile">◎ <span class="nav-label">Profile</span></button>
+        <button type="button" aria-selected="false" data-panel="appearance">◐ <span class="nav-label">Appearance</span></button>
+        <button type="button" aria-selected="false" data-panel="coach">✦ <span class="nav-label">AI personalization</span></button>
+        <button type="button" aria-selected="false" data-panel="notifications">◌ <span class="nav-label">Notifications</span></button>
+        <button type="button" aria-selected="false" data-panel="privacy">◇ <span class="nav-label">Privacy & security</span></button>
+      </nav>
+      <section>
+        <article class="settings-panel active" id="profile" tabindex="-1">
+          <div class="panel-heading"><div class="eyebrow">Your space</div><h1>Profile</h1><p>Personal details that make your Zenora experience feel like it was designed just for you.</p></div>
+          <div class="glass-card profile-hero"><div class="avatar" id="profile-initials">Z</div><div class="profile-meta"><h2 id="profile-name">Zenora member</h2><p id="profile-email">Your private wellness space</p><span class="status-pill">● PRIVATE PROFILE</span></div><button class="btn-secondary" type="button" id="edit-profile">Edit profile</button></div>
+          <div class="glass-card setting-group"><div class="setting-group-header"><h2>Wellness rhythm</h2><p>Lightweight preferences for a more personal dashboard.</p></div><label class="setting-row"><span class="setting-copy"><strong>Daily check-in</strong><span>Use a gentle prompt to pause and reflect.</span></span><input class="toggle" type="checkbox" data-setting="dailyCheckIn" checked></label><label class="setting-row"><span class="setting-copy"><strong>Focus mode</strong><span>Keep routine cards uncluttered while you work.</span></span><input class="toggle" type="checkbox" data-setting="focusMode"></label></div>
+        </article>
+        <article class="settings-panel" id="appearance" tabindex="-1">
+          <div class="panel-heading"><div class="eyebrow">Make it yours</div><h1>Appearance</h1><p>Choose a calm visual environment. Changes are saved only on this device for now.</p></div>
+          <div class="glass-card setting-group"><div class="setting-group-header"><h2>Cosmic theme</h2><p>Set the energy of your workspace.</p></div><div class="theme-options" role="radiogroup" aria-label="Theme"><button class="theme-option selected" data-theme="cosmic" role="radio" aria-checked="true"><i class="theme-swatch cosmic"></i><span>Cosmic</span></button><button class="theme-option" data-theme="midnight" role="radio" aria-checked="false"><i class="theme-swatch midnight"></i><span>Midnight</span></button><button class="theme-option" data-theme="ocean" role="radio" aria-checked="false"><i class="theme-swatch ocean"></i><span>Ocean</span></button><button class="theme-option" data-theme="forest" role="radio" aria-checked="false"><i class="theme-swatch forest"></i><span>Forest</span></button><button class="theme-option" data-theme="ember" role="radio" aria-checked="false"><i class="theme-swatch ember"></i><span>Ember</span></button><button class="theme-option" data-theme="gold" role="radio" aria-checked="false"><i class="theme-swatch gold"></i><span>Gold elite</span></button></div></div>
+          <div class="glass-card setting-group"><div class="setting-group-header"><h2>Interface</h2><p>Comfort should never be an afterthought.</p></div><label class="setting-row"><span class="setting-copy"><strong>Ambient motion</strong><span>Keep the aurora and subtle cosmic movement enabled.</span></span><input class="toggle" type="checkbox" data-setting="ambientMotion" checked></label><label class="setting-row"><span class="setting-copy"><strong>Reduce motion</strong><span>Minimise animated effects throughout Zenora.</span></span><input class="toggle" type="checkbox" data-setting="reduceMotion"></label><label class="setting-row"><span class="setting-copy"><strong>Interface density</strong><span>Choose how much information you see at once.</span></span><span class="setting-control"><select class="zen-select" data-setting="density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option><option value="focus">Focus</option></select></span></label></div>
+        </article>
+        <article class="settings-panel" id="coach" tabindex="-1"><div class="panel-heading"><div class="eyebrow">Zenora intelligence</div><h1>AI personalization</h1><p>Shape the tone and cadence of your AI-guided wellbeing experience.</p></div><div class="glass-card setting-group"><div class="setting-group-header"><h2>Coach preferences</h2><p>These choices will be used as context for your AI coach.</p></div><label class="setting-row"><span class="setting-copy"><strong>Coach personality</strong><span>How Zenora communicates with you.</span></span><span class="setting-control"><select class="zen-select" data-setting="coachTone"><option value="compassionate">Compassionate</option><option value="executive">Executive coach</option><option value="scientific">Scientific</option><option value="motivational">Motivational</option></select></span></label><label class="setting-row"><span class="setting-copy"><strong>Response length</strong><span>Adjust how much context you receive.</span></span><span class="setting-control"><select class="zen-select" data-setting="responseLength"><option value="balanced">Balanced</option><option value="short">Short</option><option value="detailed">Detailed</option></select></span></label><label class="setting-row"><span class="setting-copy"><strong>Proactive insights</strong><span>Receive patterns and gentle suggestions.</span></span><input class="toggle" type="checkbox" data-setting="proactiveInsights" checked></label></div><p class="notice">Zenora is a wellbeing companion, not a replacement for medical, mental-health, or addiction treatment. Seek qualified support whenever you need it.</p></article>
+        <article class="settings-panel" id="notifications" tabindex="-1"><div class="panel-heading"><div class="eyebrow">Your rhythm</div><h1>Notifications</h1><p>Keep helpful nudges, skip everything else.</p></div><div class="glass-card setting-group"><div class="setting-group-header"><h2>Reminders</h2><p>Notification delivery will be connected to your account as the next backend milestone.</p></div><label class="setting-row"><span class="setting-copy"><strong>Morning intention</strong><span>Start with your day’s focus.</span></span><input class="toggle" type="checkbox" data-setting="morningReminder" checked></label><label class="setting-row"><span class="setting-copy"><strong>Evening reflection</strong><span>A quiet prompt to close the day.</span></span><input class="toggle" type="checkbox" data-setting="eveningReminder"></label><label class="setting-row"><span class="setting-copy"><strong>Milestones</strong><span>Celebrate routines and meaningful streaks.</span></span><input class="toggle" type="checkbox" data-setting="milestones" checked></label></div></article>
+        <article class="settings-panel" id="privacy" tabindex="-1"><div class="panel-heading"><div class="eyebrow">You are in control</div><h1>Privacy & security</h1><p>Your reflections and wellness data deserve a calm, transparent control centre.</p></div><div class="glass-card setting-group"><div class="setting-group-header"><h2>Data choices</h2><p>Account-level actions will always require confirmation.</p></div><label class="setting-row"><span class="setting-copy"><strong>Private insights</strong><span>Use your activity only to personalise your experience.</span></span><input class="toggle" type="checkbox" data-setting="privateInsights" checked></label><div class="setting-row"><span class="setting-copy"><strong>Active session</strong><span id="session-status">Checking secure session…</span></span><span class="status-pill">● PROTECTED</span></div></div><div class="glass-card setting-group danger-zone"><div class="setting-group-header"><h2>Account access</h2><p>Signing out only removes this browser session.</p></div><div class="setting-row"><span class="setting-copy"><strong>Sign out of Zenora</strong><span>You can sign back in at any time.</span></span><button class="btn-secondary" id="logout" type="button">Sign out</button></div></div></article>
+      </section>
     </div>
-
-    <div style="display: flex; flex-direction: column; gap: 16px;">
-      <div style="background: rgba(255,255,255,0.03); padding: 18px; border-radius: 12px; border: 1px solid var(--card-border);">
-        <h4 style="color: var(--text-main);">Data Privacy & Security</h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Habits, surveys, and check-ins are isolated using Supabase Row Level Security.</p>
-      </div>
-
-      <div style="background: rgba(255,255,255,0.03); padding: 18px; border-radius: 12px; border: 1px solid var(--card-border);">
-        <h4 style="color: var(--text-main);">Frequently Asked Questions</h4>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Q: How does Groq AI generate my routines?<br>A: It analyzes your wellness metrics and habits to produce optimized time allocations.</p>
-      </div>
-
-      <button onclick="handleLogout()" class="btn-primary" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; margin-top: 12px;">Sign Out</button>
-    </div>
-  </div>
-
-  <script src="js/config.js"></script>
-  <script src="js/aurora-bg.js"></script>
-  <script src="js/main.js"></script>
+  </main>
+  <script src="js/config.js"></script><script src="js/aurora-bg.js"></script><script src="js/main.js"></script><script src="js/settings.js"></script>
 </body>
 </html>
