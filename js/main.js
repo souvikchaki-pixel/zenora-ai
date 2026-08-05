@@ -96,6 +96,10 @@ function handleLogout() {
 /**
  * DOM Event Listeners & Chat UI Handler
  */
+document.documentElement.dataset.theme = (() => {
+  try { return JSON.parse(localStorage.getItem('zenora_preferences') || '{}').theme || 'cosmic'; } catch (_) { return 'cosmic'; }
+})();
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Optional auth verification check on dashboard load
   if (window.location.pathname.includes('dashboard.html')) {

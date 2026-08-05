@@ -1,69 +1,12 @@
-(function initAurora() {
-  const canvas = document.createElement('canvas');
-  canvas.id = 'aurora-canvas';
-  document.body.prepend(canvas);
-
-  if (typeof THREE === 'undefined') return;
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  const geometry = new THREE.PlaneGeometry(30, 30, 64, 64);
-  const material = new THREE.ShaderMaterial({
-    uniforms: {
-      uTime: { value: 0 },
-      uColorA: { value: new THREE.Color("#00f2fe") },
-      uColorB: { value: new THREE.Color("#9d4edd") }
-    },
-    vertexShader: `
-      uniform float uTime;
-      varying vec2 vUv;
-      varying float vElevation;
-      void main() {
-        vUv = uv;
-        vec3 pos = position;
-        float elevation = sin(pos.x * 0.5 + uTime * 0.8) * cos(pos.y * 0.5 + uTime * 0.6) * 1.5;
-        pos.z += elevation;
-        vElevation = elevation;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform vec3 uColorA;
-      uniform vec3 uColorB;
-      varying vec2 vUv;
-      varying float vElevation;
-      void main() {
-        float mixStrength = (vElevation + 1.5) / 3.0;
-        vec3 color = mix(uColorA, uColorB, mixStrength);
-        gl_FragColor = vec4(color, 0.25);
-      }
-    `,
-    wireframe: true,
-    transparent: true
-  });
-
-  const mesh = new THREE.Mesh(geometry, material);
-  mesh.rotation.x = -Math.PI * 0.35;
-  scene.add(mesh);
-
-  camera.position.z = 8;
-
-  const clock = new THREE.Clock();
-  function animate() {
-    material.uniforms.uTime.value = clock.getElapsedTime();
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+(function initCosmicBackground(){
+  if(typeof THREE==='undefined'||document.getElementById('aurora-canvas'))return;
+  let preferences={};try{preferences=JSON.parse(localStorage.getItem('zenora_preferences')||'{}')}catch(_){ }
+  if(preferences.ambientMotion===false||preferences.reduceMotion||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const canvas=document.createElement('canvas');canvas.id='aurora-canvas';document.body.prepend(canvas);
+  const mobile=matchMedia('(max-width: 760px)').matches;const scene=new THREE.Scene();const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,100);camera.position.z=12;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:!mobile,powerPreference:'low-power'});renderer.setPixelRatio(Math.min(devicePixelRatio,mobile?1.25:1.75));renderer.setSize(innerWidth,innerHeight);
+  const aurora=new THREE.Mesh(new THREE.PlaneGeometry(34,24,64,40),new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{time:{value:0}},vertexShader:'uniform float time; varying float glow; void main(){vec3 p=position;p.z=sin(p.x*.45+time*.32)*.75+cos(p.y*.7+time*.24)*.38;glow=(p.z+1.)*.5;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}',fragmentShader:'varying float glow; void main(){vec3 a=vec3(.05,.75,.95);vec3 b=vec3(.45,.20,.95);gl_FragColor=vec4(mix(a,b,glow),.10);}' }));aurora.rotation.x=-.35;aurora.position.y=1.5;scene.add(aurora);
+  const starCount=mobile?120:280;const positions=new Float32Array(starCount*3);for(let i=0;i<starCount;i++){positions[i*3]=(Math.random()-.5)*28;positions[i*3+1]=(Math.random()-.5)*19;positions[i*3+2]=(Math.random()-.5)*8-2;}const starsGeo=new THREE.BufferGeometry();starsGeo.setAttribute('position',new THREE.BufferAttribute(positions,3));const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0xbdefff,size:mobile?.035:.045,transparent:true,opacity:.7,sizeAttenuation:true}));scene.add(stars);
+  const galaxyGeo=new THREE.BufferGeometry();const galaxyCount=mobile?170:420;const galaxyPos=new Float32Array(galaxyCount*3);for(let i=0;i<galaxyCount;i++){const r=Math.random()*4.8,arm=(i%3)*2.1+r*1.8,scatter=(Math.random()-.5)*.65;galaxyPos[i*3]=Math.cos(arm)*r+4.6;galaxyPos[i*3+1]=Math.sin(arm)*r-2.2;galaxyPos[i*3+2]=(Math.random()-.5)*.8-2;}galaxyGeo.setAttribute('position',new THREE.BufferAttribute(galaxyPos,3));const galaxy=new THREE.Points(galaxyGeo,new THREE.PointsMaterial({color:0xa78bfa,size:mobile?.04:.06,transparent:true,opacity:.52}));scene.add(galaxy);
+  const clock=new THREE.Clock();let frame=0;function animate(){frame=requestAnimationFrame(animate);const t=clock.getElapsedTime();aurora.material.uniforms.time.value=t;stars.rotation.y=t*.006;galaxy.rotation.z=t*.025;renderer.render(scene,camera);}animate();addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio,matchMedia('(max-width:760px)').matches?1.25:1.75));renderer.setSize(innerWidth,innerHeight);});addEventListener('pagehide',()=>cancelAnimationFrame(frame),{once:true});
 })();

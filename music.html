@@ -406,6 +406,15 @@
       }
     }
 
+    function seekAudio(event) {
+      if (currentTrackIndex < 0) return;
+      const bar = document.getElementById('seek-bar');
+      const ratio = Math.max(0, Math.min(1, (event.clientX - bar.getBoundingClientRect().left) / bar.getBoundingClientRect().width));
+      const parts = musicTracks[currentTrackIndex].duration.split(':').map(Number);
+      playbackSeconds = ratio * (parts[0] * 60 + parts[1]);
+      document.getElementById('seek-progress').style.width = `${ratio * 100}%`;
+    }
+
     function startTimer() {
       clearInterval(timerInterval);
       timerInterval = setInterval(() => {
@@ -414,12 +423,14 @@
         const secs = playbackSeconds % 60;
         const formatted = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
         const totalDuration = musicTracks[currentTrackIndex].duration;
+        const durationParts = totalDuration.split(':').map(Number);
+        const totalSeconds = durationParts[0] * 60 + durationParts[1];
 
         document.getElementById('dock-time').innerText = `${formatted} / ${totalDuration}`;
         
-        // Progress bar simulation
-        const pct = Math.min((playbackSeconds / 300) * 100, 100);
+        const pct = Math.min((playbackSeconds / totalSeconds) * 100, 100);
         document.getElementById('seek-progress').style.width = `${pct}%`;
+        if (playbackSeconds >= totalSeconds) playNext();
       }, 1000);
     }
 
